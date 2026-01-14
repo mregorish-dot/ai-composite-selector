@@ -1,0 +1,19 @@
+{
+  "name": "AI Composite Selector",
+  "version": "1.0.0",
+  "description": "ИИ-система выбора композита для реставрации жевательных зубов",
+  "main": "app.py",
+  "scripts": {
+    "start": "streamlit run app.py"
+  },
+  "keywords": [
+    "dental",
+    "composite",
+    "AI",
+    "EMG",
+    "streamlit"
+  ],
+  "author": "AI Double",
+  "license": "MIT"
+}
+

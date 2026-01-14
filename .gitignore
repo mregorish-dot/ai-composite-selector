@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Streamlit
+.streamlit/secrets.toml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Saved data
+app/saved_articles.json
+app/saved_pdfs/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Electron
+desktop/windows/dist/
+desktop/windows/node_modules/
+

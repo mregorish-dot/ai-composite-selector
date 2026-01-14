@@ -1,0 +1,7 @@
+patient_id,apparatus,masseter_r_chew,masseter_l_chew,temporalis_r_chew,temporalis_l_chew,masseter_r_max,masseter_l_max,temporalis_r_max,temporalis_l_max,selected_composite,success,age,occlusion_anomaly,wear_severity
+P001,Synapsys,350.5,339.25,243.25,234.8,359.7,351.25,274.8,248.45,XF,Да,45,аномалия прикуса,легкая
+P002,Synapsys,380.0,370.0,260.0,250.0,400.0,390.0,300.0,280.0,XF,Да,52,аномалия прикуса,средняя
+P003,Kolibri,111.0,111.0,138.0,138.0,278.0,278.0,558.0,558.0,TBF,Да,38,нет,нет
+P004,Synapsys,320.0,310.0,220.0,210.0,340.0,330.0,250.0,240.0,TBF,Да,41,нет,нет
+P005,Synapsys,400.0,390.0,280.0,270.0,420.0,410.0,320.0,300.0,XF,Да,58,аномалия прикуса,тяжелая
+

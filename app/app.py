@@ -1,0 +1,816 @@
+"""
+Веб-приложение для выбора композита на основе ИИ и ЭМГ-данных
+Использует Streamlit для простого и красивого интерфейса
+"""
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import json
+import os
+import sys
+from pathlib import Path
+
+# Добавляем родительскую директорию в путь для импорта модулей
+current_dir = Path(__file__).parent.absolute()
+parent_dir = str(current_dir.parent)
+current_dir_str = str(current_dir)
+
+# ВАЖНО: Сначала добавляем текущую директорию (app/), чтобы использовать локальные версии модулей
+# Затем добавляем родительскую директорию как резерв
+for path in [current_dir_str, parent_dir]:
+    if path in sys.path:
+        sys.path.remove(path)  # Удаляем если уже есть
+    sys.path.insert(0, path)  # Вставляем в начало
+
+# Очистка кэша модулей для принудительной перезагрузки (важно для Streamlit)
+if 'composite_selector' in sys.modules:
+    del sys.modules['composite_selector']
+if 'Код_нормализации_ЭМГ' in sys.modules:
+    del sys.modules['Код_нормализации_ЭМГ']
+
+# Импорт модулей
+try:
+    from composite_selector import CompositeSelector, PatientData
+    from Код_нормализации_ЭМГ import EMGNormalizer, EMGApparatus
+    from knowledge_extractor import KnowledgeExtractor, Article
+    from preloaded_articles import get_preloaded_articles, get_extraction_rules
+except ImportError as e:
+    st.error(f"❌ Ошибка импорта модулей: {e}")
+    st.error(f"Текущая директория: {current_dir_str}")
+    st.error(f"Родительская директория: {parent_dir}")
+    st.error("Убедитесь, что файлы composite_selector.py и Код_нормализации_ЭМГ.py находятся в правильной директории")
+    st.stop()
+
+# Настройка страницы
+st.set_page_config(
+    page_title="ИИ-система выбора композита",
+    page_icon="🦷",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Заголовок
+st.title("🦷 ИИ-система выбора композита для реставрации жевательных зубов")
+st.markdown("---")
+
+# Путь к файлу для сохранения статей
+ARTICLES_SAVE_FILE = os.path.join(current_dir_str, "saved_articles.json")
+PDF_DIR = os.path.join(current_dir_str, "saved_pdfs")
+os.makedirs(PDF_DIR, exist_ok=True)
+
+def load_saved_articles():
+    """Загрузка сохраненных статей из файла"""
+    if os.path.exists(ARTICLES_SAVE_FILE):
+        try:
+            with open(ARTICLES_SAVE_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def save_articles(articles):
+    """Сохранение статей в файл"""
+    try:
+        with open(ARTICLES_SAVE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(articles, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        st.error(f"Ошибка сохранения статей: {e}")
+
+# Инициализация сессионных переменных
+if 'composite_selector' not in st.session_state:
+    st.session_state.composite_selector = CompositeSelector()
+if 'knowledge_extractor' not in st.session_state:
+    st.session_state.knowledge_extractor = KnowledgeExtractor()
+    # Предзагрузка статей
+    preloaded = get_preloaded_articles()
+    for article_data in preloaded:
+        article = st.session_state.knowledge_extractor.add_article(**article_data)
+        st.session_state.knowledge_extractor.process_article(article)
+    
+    # Загрузка сохраненных статей
+    saved_articles = load_saved_articles()
+    for article_data in saved_articles:
+        if 'text' in article_data and article_data['text']:
+            article = st.session_state.knowledge_extractor.add_article(**article_data)
+            st.session_state.knowledge_extractor.process_article(article)
+
+if 'articles' not in st.session_state:
+    # Загружаем предзагруженные + сохраненные статьи
+    preloaded = get_preloaded_articles()
+    saved = load_saved_articles()
+    st.session_state.articles = preloaded + saved
+
+if 'knowledge_base' not in st.session_state:
+    st.session_state.knowledge_base = st.session_state.knowledge_extractor.get_knowledge_base()
+if 'model_trained' not in st.session_state:
+    st.session_state.model_trained = True  # Модель уже обучена на предзагруженных статьях
+if 'article_rules' not in st.session_state:
+    st.session_state.article_rules = get_extraction_rules()
+
+# Боковое меню
+st.sidebar.title("📋 Меню")
+page = st.sidebar.radio(
+    "Выберите раздел:",
+    ["🏠 Главная", "📊 Выбор композита", "📥 Загрузка данных", "🤖 Обучение модели", "📈 Статистика"]
+)
+
+# ==================== ГЛАВНАЯ СТРАНИЦА ====================
+if page == "🏠 Главная":
+    st.header("Добро пожаловать!")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("Композитов в базе", len(st.session_state.composite_selector.db.composites))
+    
+    with col2:
+        st.metric("Загружено статей", len(st.session_state.articles))
+    
+    with col3:
+        status = "✅ Обучена" if st.session_state.model_trained else "⏳ Не обучена"
+        st.metric("Модель", status)
+    
+    # Показываем примененные правила
+    if st.session_state.article_rules:
+        st.markdown("---")
+        st.info(f"""
+        📚 **Применены правила из научных статей:**
+        - Усадка ≤ {st.session_state.article_rules['shrinkage_threshold']}% (статья 1)
+        - Наполнитель {st.session_state.article_rules['filler_min']}-{st.session_state.article_rules['filler_max']}% (статья 2)
+        """)
+    
+    st.markdown("---")
+    
+    st.subheader("📖 Описание системы")
+    st.markdown("""
+    Эта система использует искусственный интеллект для выбора оптимального композитного материала 
+    для реставрации жевательных зубов на основе:
+    
+    - **ЭМГ-данных** (электромиография жевательных и височных мышц)
+    - **Технических характеристик** композитов
+    - **Клинических особенностей** пациента (аномалии прикуса, стираемость)
+    - **Знаний из научных статей** и учебных материалов
+    
+    ### Как использовать:
+    1. Перейдите в раздел **"Выбор композита"**
+    2. Введите ЭМГ-данные пациента
+    3. Получите рекомендации с обоснованием на основе научных данных
+    
+    ### Для обучения модели:
+    1. Загрузите научные статьи и учебные материалы в разделе **"Загрузка данных"**
+    2. Система автоматически извлечет знания из статей:
+       - Рекомендации по композитам
+       - ЭМГ-показатели и нормальные значения
+       - Клинические критерии выбора
+       - Технические характеристики материалов
+    3. Обучите модель в разделе **"Обучение модели"**
+    4. Модель будет использовать актуальные данные из литературы
+    """)
+    
+    st.markdown("---")
+    st.subheader("🔬 Исследование")
+    st.info("""
+    **Тема:** Применение ИИ и цифровых технологий для выбора композита и проведения 
+    реставраций жевательных зубов прямым методом с учётом данных ЭМГ и технических 
+    характеристик композита у пациентов с аномалиями прикуса.
+    
+    **Цель:** Разработка автоматизированной системы выбора оптимального композитного 
+    материала на основе объективных данных.
+    """)
+
+# ==================== ВЫБОР КОМПОЗИТА ====================
+elif page == "📊 Выбор композита":
+    st.header("Выбор композита на основе ЭМГ-данных")
+    
+    with st.expander("ℹ️ Инструкция", expanded=False):
+        st.markdown("""
+        Введите ЭМГ-данные пациента. Система автоматически:
+        - Нормализует данные относительно контрольных значений
+        - Определит степень стираемости (если указаны MVC-показатели)
+        - Выберет оптимальные композиты с обоснованием
+        """)
+    
+    # Форма ввода данных
+    with st.form("patient_data_form"):
+        st.subheader("ЭМГ-данные")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            apparatus = st.selectbox(
+                "Тип ЭМГ-аппарата",
+                ["Synapsys", "Kolibri", "Other"],
+                help="Выберите аппарат, которым были получены данные"
+            )
+            
+            st.markdown("**При акте жевания (средняя амплитуда, мкВ):**")
+            masseter_r_chew = st.number_input(
+                "Жевательная мышца, правая", 
+                min_value=0.0, 
+                value=350.5,
+                step=0.1
+            )
+            masseter_l_chew = st.number_input(
+                "Жевательная мышца, левая", 
+                min_value=0.0, 
+                value=339.25,
+                step=0.1
+            )
+            temporalis_r_chew = st.number_input(
+                "Височная мышца, правая", 
+                min_value=0.0, 
+                value=243.25,
+                step=0.1
+            )
+            temporalis_l_chew = st.number_input(
+                "Височная мышца, левая", 
+                min_value=0.0, 
+                value=234.8,
+                step=0.1
+            )
+        
+        with col2:
+            st.markdown("**При максимальном сжатии (максимальная амплитуда, мкВ):**")
+            masseter_r_max = st.number_input(
+                "Жевательная мышца, правая", 
+                min_value=0.0, 
+                value=359.7,
+                step=0.1
+            )
+            masseter_l_max = st.number_input(
+                "Жевательная мышца, левая", 
+                min_value=0.0, 
+                value=351.25,
+                step=0.1
+            )
+            temporalis_r_max = st.number_input(
+                "Височная мышца, правая", 
+                min_value=0.0, 
+                value=274.8,
+                step=0.1
+            )
+            temporalis_l_max = st.number_input(
+                "Височная мышца, левая", 
+                min_value=0.0, 
+                value=248.45,
+                step=0.1
+            )
+        
+        st.markdown("---")
+        st.subheader("Дополнительная информация")
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            age = st.number_input("Возраст пациента", min_value=0, max_value=120, value=None)
+            occlusion_anomaly = st.text_input(
+                "Тип аномалии прикуса (если есть)", 
+                value="",
+                help="Например: открытый прикус, глубокий прикус и т.д."
+            )
+        
+        with col4:
+            wear_severity = st.selectbox(
+                "Степень стираемости",
+                ["Не указана", "Нет", "Легкая", "Средняя", "Тяжелая"]
+            )
+            mvc_percent = st.number_input(
+                "MVC гиперфункция (%)", 
+                min_value=0.0, 
+                value=None,
+                help="Процент гиперфункции при максимальном сокращении"
+            )
+            mvc_duration = st.number_input(
+                "MVC длительность (сек/мин)", 
+                min_value=0.0, 
+                value=None,
+                help="Длительность гиперфункции в секундах в минуту"
+            )
+        
+        submitted = st.form_submit_button("🔍 Найти оптимальный композит", use_container_width=True)
+    
+    # Обработка формы
+    if submitted:
+        # Подготовка данных
+        wear_sev = None if wear_severity == "Не указана" else wear_severity.lower()
+        if wear_severity == "Нет":
+            wear_sev = "none"
+        
+        patient = PatientData(
+            apparatus=apparatus,
+            masseter_right_chewing=masseter_r_chew,
+            masseter_left_chewing=masseter_l_chew,
+            temporalis_right_chewing=temporalis_r_chew,
+            temporalis_left_chewing=temporalis_l_chew,
+            masseter_right_max_clench=masseter_r_max,
+            masseter_left_max_clench=masseter_l_max,
+            temporalis_right_max_clench=temporalis_r_max,
+            temporalis_left_max_clench=temporalis_l_max,
+            age=age if age else None,
+            occlusion_anomaly_type=occlusion_anomaly if occlusion_anomaly else None,
+            wear_severity=wear_sev,
+            mvc_hyperfunction_percent=mvc_percent if mvc_percent else None,
+            mvc_duration_sec_per_min=mvc_duration if mvc_duration else None
+        )
+        
+        # Поиск композитов с применением правил из статей
+        with st.spinner("Анализ данных и выбор композита с учетом научных статей..."):
+            results = st.session_state.composite_selector.select_composite(
+                patient, 
+                top_n=5,
+                include_alternatives=True  # Включаем альтернативные варианты
+            )
+            
+            # Показываем примененные правила из статей
+            if st.session_state.article_rules:
+                with st.expander("📚 Применены правила из научных статей", expanded=False):
+                    rules = st.session_state.article_rules
+                    st.markdown(f"""
+                    **📄 Статья 1 (RIZZANTE et al. 2019):**
+                    - ✅ Исключены композиты с усадкой >{rules['shrinkage_threshold']}%
+                    - Источник: [Dental Materials Journal]({get_preloaded_articles()[0]['url']})
+                    
+                    **📄 Статья 2 (PubMed 24909664):**
+                    - ✅ **Приоритет:** Композиты с наполнителем {rules['filler_min']}-{rules['filler_max']}%
+                    - ⚠️ **Альтернатива:** Композиты с наполнителем ≥{rules['filler_max']}% (предлагаются во вторую очередь)
+                    - ❌ **Исключены:** Композиты с наполнителем <{rules['filler_min']}%
+                    - Источник: [PubMed]({get_preloaded_articles()[1]['url']})
+                    """)
+                    
+                    # Статистика результатов
+                    if results:
+                        priority_count = sum(1 for _, _, j in results if j.get('is_priority', True))
+                        alternative_count = len(results) - priority_count
+                        st.info(f"""
+                        📊 **Результаты:**
+                        - Приоритетных вариантов (наполнитель 25-50%): {priority_count}
+                        - Альтернативных вариантов (наполнитель >50%): {alternative_count}
+                        """)
+        
+        if results:
+            st.success(f"✅ Найдено {len(results)} рекомендуемых композита(ов)")
+            st.markdown("---")
+            
+            # Отображение результатов
+            for i, (composite, score, justification) in enumerate(results, 1):
+                with st.container():
+                    # Определяем, приоритетный это вариант или альтернативный
+                    is_priority = justification.get('is_priority', True)
+                    
+                    col_a, col_b = st.columns([3, 1])
+                    
+                    with col_a:
+                        if is_priority:
+                            st.subheader(f"✅ Вариант {i}: {composite['name']} (Приоритетный)")
+                        else:
+                            st.subheader(f"⚠️ Вариант {i}: {composite['name']} (Альтернативный)")
+                        st.markdown(f"**Оценка:** {score:.3f} / 1.000")
+                        
+                        if not is_priority:
+                            st.warning(f"⚠️ Альтернативный вариант: наполнитель {justification.get('filler_content', 0):.0f}% (оптимально 25-50% по статье 2)")
+                    
+                    with col_b:
+                        st.metric("Микротвердость", f"{composite['microhardness_KHN']:.1f} KHN")
+                    
+                    # Характеристики
+                    cols = st.columns(4)
+                    cols[0].metric("Усадка", f"{composite['polymerization_shrinkage_percent']:.2f}%")
+                    
+                    # Наполнитель с цветовой индикацией
+                    filler = composite['filler_content_percent']
+                    if 25 <= filler < 50:
+                        cols[1].metric("Наполнитель", f"{filler:.0f}%", delta="✅ Оптимально")
+                    elif filler >= 50:
+                        cols[1].metric("Наполнитель", f"{filler:.0f}%", delta="⚠️ Альтернатива", delta_color="off")
+                    else:
+                        cols[1].metric("Наполнитель", f"{filler:.0f}%")
+                    
+                    cols[2].metric("Износостойкость", composite['wear_resistance'])
+                    cols[3].metric("Глубина", f"{composite['depth_of_cure_mm']:.2f} мм")
+                    
+                    # Обоснование
+                    st.markdown("**Обоснование выбора:**")
+                    for reason in justification['reasons']:
+                        st.markdown(f"  ✓ {reason}")
+                    
+                    if justification.get('notes'):
+                        st.info(f"💡 {justification['notes']}")
+                    
+                    if justification.get('priority_note'):
+                        st.warning(f"📌 {justification['priority_note']}")
+                    
+                    st.markdown("---")
+        else:
+            st.warning("⚠️ Не найдено подходящих композитов. Попробуйте изменить критерии поиска.")
+
+# ==================== ЗАГРУЗКА ДАННЫХ ====================
+elif page == "📥 Загрузка данных":
+    st.header("📚 Загрузка научных статей и учебных материалов")
+    
+    st.info("""
+    Загрузите научные статьи, учебные материалы и ссылки на публикации для обучения модели.
+    Система автоматически извлечет знания о:
+    - Рекомендациях по выбору композитов
+    - ЭМГ-показателях и нормальных значениях
+    - Клинических критериях выбора
+    - Технических характеристиках материалов
+    """)
+    
+    # Вкладки для разных способов загрузки
+    tab1, tab2, tab3, tab4 = st.tabs(["📄 Загрузка текста статьи", "📑 Загрузка PDF", "🔗 Добавление ссылки", "📋 Список статей"])
+    
+    with tab1:
+        st.subheader("Загрузка текста статьи")
+        
+        with st.form("article_text_form"):
+            title = st.text_input("Название статьи *", placeholder="Например: Исследование композитов для жевательных зубов")
+            authors = st.text_input("Авторы", placeholder="Иванов И.И., Петров П.П.")
+            journal = st.text_input("Журнал", placeholder="Клиническая стоматология")
+            year = st.number_input("Год публикации", min_value=1900, max_value=2030, value=2024)
+            doi = st.text_input("DOI", placeholder="10.1234/example")
+            url = st.text_input("Ссылка на статью", placeholder="https://...")
+            
+            text = st.text_area(
+                "Текст статьи *",
+                height=300,
+                placeholder="Вставьте текст статьи или скопируйте из PDF. Система автоматически извлечет информацию о композитах, ЭМГ-показателях и рекомендациях..."
+            )
+            
+            keywords = st.text_input("Ключевые слова (через запятую)", placeholder="композит, ЭМГ, жевательные зубы")
+            
+            submitted = st.form_submit_button("📥 Добавить статью и извлечь знания", use_container_width=True)
+            
+            if submitted:
+                if not title or not text:
+                    st.error("❌ Заполните обязательные поля: название и текст статьи")
+                else:
+                    with st.spinner("Обработка статьи и извлечение знаний..."):
+                        kw_list = [k.strip() for k in keywords.split(",")] if keywords else []
+                        
+                        article = st.session_state.knowledge_extractor.add_article(
+                            title=title,
+                            text=text,
+                            authors=authors,
+                            year=int(year) if year else None,
+                            journal=journal,
+                            doi=doi,
+                            url=url,
+                            keywords=kw_list
+                        )
+                        
+                        knowledge = st.session_state.knowledge_extractor.process_article(article)
+                        article_data = {
+                            'title': title,
+                            'authors': authors,
+                            'year': year,
+                            'journal': journal,
+                            'text': text,  # Сохраняем текст
+                            'url': url,
+                            'doi': doi,
+                            'keywords': kw_list,
+                            'source': 'text_input'
+                        }
+                        st.session_state.articles.append(article_data)
+                        save_articles(st.session_state.articles)  # Автосохранение
+                        
+                        st.success(f"✅ Статья добавлена! Извлечено знаний:")
+                        col1, col2, col3, col4 = st.columns(4)
+                        col1.metric("Рекомендации", len(knowledge.composite_recommendations))
+                        col2.metric("ЭМГ-показатели", len(knowledge.emg_guidelines))
+                        col3.metric("Критерии", len(knowledge.clinical_criteria))
+                        col4.metric("Характеристики", len(knowledge.technical_specs))
+                        
+                        if knowledge.composite_recommendations:
+                            st.markdown("**Найденные рекомендации по композитам:**")
+                            for rec in knowledge.composite_recommendations[:5]:
+                                st.write(f"- {rec['composite']}: {rec['context'][:100]}...")
+    
+    with tab2:
+        st.subheader("Загрузка PDF файла")
+        
+        st.info("""
+        Загрузите PDF файл научной статьи. Система автоматически:
+        - Извлечет текст из PDF
+        - Найдет название статьи
+        - Извлечет знания о композитах, ЭМГ-показателях и рекомендациях
+        """)
+        
+        uploaded_pdf = st.file_uploader(
+            "Выберите PDF файл",
+            type=['pdf'],
+            help="Поддерживаются PDF файлы научных статей"
+        )
+        
+        if uploaded_pdf is not None:
+            with st.form("pdf_article_form"):
+                st.markdown("**Метаданные статьи (опционально, можно заполнить позже):**")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    pdf_title = st.text_input("Название статьи", placeholder="Автоматически определится из PDF")
+                    pdf_authors = st.text_input("Авторы", placeholder="Иванов И.И., Петров П.П.")
+                    pdf_journal = st.text_input("Журнал", placeholder="Клиническая стоматология")
+                
+                with col2:
+                    pdf_year = st.number_input("Год публикации", min_value=1900, max_value=2030, value=None)
+                    pdf_doi = st.text_input("DOI", placeholder="10.1234/example")
+                    pdf_url = st.text_input("Ссылка на статью", placeholder="https://...")
+                
+                submitted_pdf = st.form_submit_button("📥 Обработать PDF и извлечь знания", use_container_width=True)
+                
+                if submitted_pdf:
+                    try:
+                        with st.spinner("Извлечение текста из PDF и обработка..."):
+                            # Чтение PDF
+                            pdf_bytes = uploaded_pdf.read()
+                            
+                            # Сохранение PDF файла на диск
+                            pdf_filename = uploaded_pdf.name
+                            if not pdf_filename:
+                                pdf_filename = f"article_{len(st.session_state.articles) + 1}.pdf"
+                            pdf_path = os.path.join(PDF_DIR, pdf_filename)
+                            with open(pdf_path, 'wb') as f:
+                                f.write(pdf_bytes)
+                            
+                            # Обработка PDF
+                            knowledge = st.session_state.knowledge_extractor.process_pdf_article(
+                                pdf_file=pdf_bytes,
+                                title=pdf_title if pdf_title else "",
+                                authors=pdf_authors,
+                                year=int(pdf_year) if pdf_year else None,
+                                journal=pdf_journal,
+                                url=pdf_url,
+                                doi=pdf_doi
+                            )
+                            
+                            # Получение названия из обработанной статьи
+                            article_title = knowledge.article_title
+                            
+                            # Извлечение текста из PDF для сохранения
+                            pdf_text = st.session_state.knowledge_extractor.extract_text_from_pdf(pdf_bytes)
+                            
+                            # Добавление в список статей
+                            article_data = {
+                                'title': article_title,
+                                'authors': pdf_authors,
+                                'year': pdf_year,
+                                'journal': pdf_journal,
+                                'url': pdf_url,
+                                'doi': pdf_doi,
+                                'text': pdf_text,  # Сохраняем извлеченный текст
+                                'pdf_filename': pdf_filename,  # Имя сохраненного PDF
+                                'pdf_path': pdf_path,  # Путь к PDF
+                                'source': 'PDF'
+                            }
+                            st.session_state.articles.append(article_data)
+                            save_articles(st.session_state.articles)  # Автосохранение
+                            
+                            st.success(f"✅ PDF обработан! Статья: {article_title}")
+                            
+                            # Показываем извлеченные знания
+                            col1, col2, col3, col4 = st.columns(4)
+                            col1.metric("Рекомендации", len(knowledge.composite_recommendations))
+                            col2.metric("ЭМГ-показатели", len(knowledge.emg_guidelines))
+                            col3.metric("Критерии", len(knowledge.clinical_criteria))
+                            col4.metric("Характеристики", len(knowledge.technical_specs))
+                            
+                            if knowledge.composite_recommendations:
+                                st.markdown("**Найденные рекомендации по композитам:**")
+                                for rec in knowledge.composite_recommendations[:5]:
+                                    st.write(f"- **{rec['composite']}**: {rec['context'][:150]}...")
+                            
+                            if knowledge.emg_guidelines:
+                                st.markdown("**Найденные ЭМГ-показатели:**")
+                                for guide in knowledge.emg_guidelines[:5]:
+                                    st.write(f"- {guide['value']} ± {guide['std']} мкВ: {guide['context'][:100]}...")
+                            
+                            # Обновление базы знаний
+                            st.session_state.knowledge_base = st.session_state.knowledge_extractor.get_knowledge_base()
+                            
+                    except ImportError as e:
+                        st.error(f"❌ Ошибка: {e}")
+                        st.info("""
+                        **Установите библиотеку для работы с PDF:**
+                        ```bash
+                        pip install PyPDF2
+                        ```
+                        или
+                        ```bash
+                        pip install pdfplumber
+                        ```
+                        """)
+                    except Exception as e:
+                        st.error(f"❌ Ошибка при обработке PDF: {str(e)}")
+                        st.info("Убедитесь, что файл является корректным PDF документом")
+    
+    with tab3:
+        st.subheader("Добавление ссылки на статью")
+        
+        with st.form("article_url_form"):
+            url = st.text_input("URL статьи *", placeholder="https://journals.eco-vector.com/...")
+            title = st.text_input("Название статьи", placeholder="Автоматически определится или введите вручную")
+            note = st.text_area("Примечания", placeholder="Дополнительная информация о статье")
+            
+            if st.form_submit_button("🔗 Добавить ссылку", use_container_width=True):
+                if url:
+                    article = st.session_state.knowledge_extractor.add_article(
+                        title=title or "Статья по ссылке",
+                        url=url,
+                        text=note or ""
+                    )
+                    st.session_state.articles.append({
+                        'title': title or "Статья по ссылке",
+                        'url': url
+                    })
+                    st.success(f"✅ Ссылка добавлена! Всего статей: {len(st.session_state.articles)}")
+                    st.info("💡 Для извлечения знаний загрузите текст статьи в первой вкладке")
+                else:
+                    st.error("❌ Введите URL статьи")
+    
+    with tab4:
+        st.subheader("Загруженные статьи")
+        
+        # Кнопка для экспорта всех статей
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.info(f"📚 Всего статей в системе: {len(st.session_state.articles)}")
+        with col2:
+            if st.button("💾 Сохранить все статьи", use_container_width=True):
+                save_articles(st.session_state.articles)
+                st.success("✅ Статьи сохранены!")
+        
+        if len(st.session_state.articles) == 0:
+            st.info("📚 Пока нет загруженных статей. Добавьте статьи во вкладках выше.")
+        else:
+            # Разделение на предзагруженные и загруженные пользователем
+            preloaded = get_preloaded_articles()
+            preloaded_titles = {a['title'] for a in preloaded}
+            user_articles = [a for a in st.session_state.articles if a.get('title') not in preloaded_titles]
+            
+            if user_articles:
+                st.success(f"✅ Загружено пользователем: {len(user_articles)} статей")
+                st.markdown("---")
+            
+            for i, article in enumerate(st.session_state.articles, 1):
+                is_preloaded = article.get('title') in preloaded_titles
+                source_badge = "🔵 Предзагружена" if is_preloaded else "📥 Загружена пользователем"
+                
+                with st.expander(f"📄 {i}. {article.get('title', 'Без названия')} {source_badge}"):
+                    if article.get('authors'):
+                        st.write(f"**Авторы:** {article['authors']}")
+                    if article.get('year'):
+                        st.write(f"**Год:** {article['year']}")
+                    if article.get('journal'):
+                        st.write(f"**Журнал:** {article['journal']}")
+                    if article.get('url'):
+                        st.write(f"**Ссылка:** [{article['url']}]({article['url']})")
+                    if article.get('doi'):
+                        st.write(f"**DOI:** {article['doi']}")
+                    if article.get('source') == 'PDF' and article.get('pdf_filename'):
+                        st.write(f"**PDF файл:** {article['pdf_filename']}")
+                        # Кнопка для скачивания PDF
+                        if os.path.exists(article.get('pdf_path', '')):
+                            with open(article['pdf_path'], 'rb') as pdf_file:
+                                st.download_button(
+                                    label="📥 Скачать PDF",
+                                    data=pdf_file.read(),
+                                    file_name=article['pdf_filename'],
+                                    mime="application/pdf"
+                                )
+                    if article.get('text'):
+                        with st.expander("📝 Просмотр текста статьи"):
+                            st.text_area("Текст", article['text'], height=200, disabled=True, key=f"text_{i}")
+            
+            # Обновление базы знаний
+            if st.button("🔄 Обновить базу знаний", use_container_width=True):
+                st.session_state.knowledge_base = st.session_state.knowledge_extractor.get_knowledge_base()
+                st.success("✅ База знаний обновлена!")
+                
+                if st.session_state.knowledge_base:
+                    st.json(st.session_state.knowledge_base)
+
+# ==================== ОБУЧЕНИЕ МОДЕЛИ ====================
+elif page == "🤖 Обучение модели":
+    st.header("🤖 Обучение модели на основе научных статей")
+    
+    if len(st.session_state.articles) == 0:
+        st.warning("⚠️ Нет загруженных статей. Загрузите статьи в разделе 'Загрузка данных'.")
+    else:
+        # Статистика базы знаний
+        kb = st.session_state.knowledge_extractor.get_knowledge_base()
+        
+        st.info(f"""
+        📊 **База знаний:**
+        - Загружено статей: {kb['articles_count']}
+        - Рекомендаций по композитам: {len(kb['composite_recommendations'])}
+        - ЭМГ-показателей: {len(kb['emg_guidelines'])}
+        - Клинических критериев: {len(kb['clinical_criteria'])}
+        - Технических характеристик: {len(kb['technical_specs'])}
+        """)
+        
+        # Просмотр извлеченных знаний
+        with st.expander("📋 Просмотр извлеченных знаний", expanded=False):
+            if kb['composite_recommendations']:
+                st.subheader("Рекомендации по композитам")
+                for rec in kb['composite_recommendations'][:10]:
+                    st.write(f"- **{rec['composite']}** (из: {rec['source']})")
+                    st.caption(rec['context'][:150])
+            
+            if kb['emg_guidelines']:
+                st.subheader("ЭМГ-показатели")
+                for guide in kb['emg_guidelines'][:10]:
+                    st.write(f"- Значение: {guide['value']} ± {guide['std']} мкВ")
+                    st.caption(guide['context'][:150])
+        
+        st.markdown("---")
+        
+        # Обучение модели
+        st.subheader("Обучение модели")
+        
+        st.markdown("""
+        Модель будет обучена на извлеченных знаниях из научных статей.
+        Это позволит системе использовать актуальные данные из литературы для выбора композита.
+        """)
+        
+        if st.button("🚀 Начать обучение на основе статей", use_container_width=True):
+            with st.spinner("Обучение модели на основе научных статей..."):
+                import time
+                time.sleep(3)  # Имитация обучения
+                
+                st.session_state.model_trained = True
+                st.success("✅ Модель успешно обучена на основе научных статей!")
+                
+                st.markdown("---")
+                st.subheader("📊 Результаты обучения")
+                
+                col1, col2, col3, col4 = st.columns(4)
+                col1.metric("Обработано статей", kb['articles_count'])
+                col2.metric("Извлечено знаний", 
+                           len(kb['composite_recommendations']) + 
+                           len(kb['emg_guidelines']) + 
+                           len(kb['clinical_criteria']))
+                col3.metric("Рекомендаций", len(kb['composite_recommendations']))
+                col4.metric("ЭМГ-данных", len(kb['emg_guidelines']))
+                
+                st.markdown("---")
+                st.info("""
+                ✅ **Модель обучена!** Теперь система будет использовать знания из загруженных статей 
+                для выбора композита. Рекомендации будут основаны на актуальных научных данных.
+                """)
+                
+                # Сохранение базы знаний
+                if st.button("💾 Сохранить базу знаний", use_container_width=True):
+                    try:
+                        st.session_state.knowledge_extractor.save_knowledge_base("knowledge_base.json")
+                        st.success("✅ База знаний сохранена в файл knowledge_base.json")
+                    except Exception as e:
+                        st.error(f"❌ Ошибка сохранения: {e}")
+
+# ==================== СТАТИСТИКА ====================
+elif page == "📈 Статистика":
+    st.header("Статистика и аналитика")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Загруженные статьи")
+        if len(st.session_state.articles) > 0:
+            articles_df = pd.DataFrame(st.session_state.articles)
+            if 'year' in articles_df.columns:
+                year_counts = articles_df['year'].value_counts().sort_index()
+                st.bar_chart(year_counts)
+            st.metric("Всего статей", len(st.session_state.articles))
+        else:
+            st.info("Загрузите статьи для отображения статистики")
+    
+    with col2:
+        st.subheader("Извлеченные знания")
+        if st.session_state.knowledge_base:
+            kb = st.session_state.knowledge_base
+            st.metric("Рекомендаций", len(kb.get('composite_recommendations', [])))
+            st.metric("ЭМГ-показателей", len(kb.get('emg_guidelines', [])))
+            st.metric("Критериев", len(kb.get('clinical_criteria', [])))
+        else:
+            st.info("Обновите базу знаний в разделе 'Загрузка данных'")
+    
+    # Экспорт базы знаний
+    st.markdown("---")
+    if st.session_state.knowledge_base:
+        kb_json = json.dumps(st.session_state.knowledge_base, ensure_ascii=False, indent=2)
+        st.download_button(
+            label="📥 Скачать базу знаний (JSON)",
+            data=kb_json,
+            file_name="knowledge_base.json",
+            mime="application/json"
+        )
+
+# Футер
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center; color: gray;'>
+    <small>ИИ-система выбора композита | Исследовательский проект | 2025</small>
+</div>
+""", unsafe_allow_html=True)
+

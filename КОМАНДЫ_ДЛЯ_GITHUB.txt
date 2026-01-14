@@ -1,0 +1,45 @@
+╔══════════════════════════════════════════════════════════════╗
+║     КОМАНДЫ ДЛЯ ЗАГРУЗКИ КОДА НА GITHUB                     ║
+╚══════════════════════════════════════════════════════════════╝
+
+1. Создайте репозиторий на GitHub:
+   - Нажмите "New" (зеленая кнопка)
+   - Название: ai-composite-selector
+   - Выберите Public
+   - НЕ добавляйте README, .gitignore, license
+   - Нажмите "Create repository"
+
+2. Скопируйте URL вашего репозитория (будет показан на GitHub)
+
+3. Выполните эти команды в терминале:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd "/Users/egorryzhkov/Desktop/AI Double"
+
+git init
+
+git add .
+
+git commit -m "Initial commit: AI Composite Selector"
+
+git branch -M main
+
+git remote add origin https://github.com/ВАШ_USERNAME/ai-composite-selector.git
+
+git push -u origin main
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  ВАЖНО: Замените ВАШ_USERNAME на ваш GitHub username!
+
+Например, если ваш username "john", то:
+git remote add origin https://github.com/john/ai-composite-selector.git
+
+✅ После выполнения команд код будет на GitHub!
+
+📋 СЛЕДУЮЩИЙ ШАГ:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Перейдите на: https://share.streamlit.io/
+И следуйте инструкциям для деплоя
+

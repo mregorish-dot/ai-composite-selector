@@ -1,0 +1,37 @@
+{
+  "name": "ai-composite-selector",
+  "version": "1.0.0",
+  "description": "ИИ-система выбора композита для реставрации жевательных зубов",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.aidouble.compositeselector",
+    "productName": "AI Composite Selector",
+    "win": {
+      "target": ["nsis"],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "keywords": [
+    "dental",
+    "composite",
+    "AI"
+  ],
+  "author": "AI Double",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "electron": "^27.0.0"
+  }
+}
+
