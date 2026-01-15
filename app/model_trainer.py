@@ -327,6 +327,10 @@ class CompositeModelTrainer:
         if len(X) < 2:
             raise ValueError(f"Недостаточно данных для обучения: {len(X)} примеров (нужно минимум 2)")
         
+        # Если данных мало, используем все для обучения (без разделения на train/test)
+        if len(X) < 5:
+            print(f"⚠️ Мало данных ({len(X)} примеров), используем все для обучения")
+        
         # Разделение на train/test
         if len(X) > 10:
             X_train, X_test, y_train, y_test = train_test_split(
