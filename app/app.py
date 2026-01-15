@@ -88,6 +88,16 @@ if 'knowledge_extractor' not in st.session_state:
         article = st.session_state.knowledge_extractor.add_article(**article_data)
         st.session_state.knowledge_extractor.process_article(article)
     
+    # Загрузка клинических статей с ЭМГ и композитами
+    try:
+        from clinical_articles_data import get_clinical_articles
+        clinical_articles = get_clinical_articles()
+        for article_data in clinical_articles:
+            article = st.session_state.knowledge_extractor.add_article(**article_data)
+            st.session_state.knowledge_extractor.process_article(article)
+    except ImportError:
+        pass  # Модуль не найден, пропускаем
+    
     # Загрузка сохраненных статей
     saved_articles = load_saved_articles()
     for article_data in saved_articles:
