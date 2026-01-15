@@ -327,17 +327,25 @@ class CompositeModelTrainer:
         if len(X) < 2:
             raise ValueError(f"Недостаточно данных для обучения: {len(X)} примеров (нужно минимум 2)")
         
-        # Если данных мало, используем все для обучения (без разделения на train/test)
-        if len(X) < 5:
-            print(f"⚠️ Мало данных ({len(X)} примеров), используем все для обучения")
+        # Проверка на достаточность данных для стратификации
+        from collections import Counter
+        class_counts = Counter(y)
+        min_class_count = min(class_counts.values())
         
-        # Разделение на train/test
-        if len(X) > 10:
+        # Если данных мало или есть классы с 1 примером, используем все для обучения
+        if len(X) < 5 or min_class_count < 2:
+            print(f"⚠️ Мало данных ({len(X)} примеров) или классы с 1 примером, используем все для обучения")
+            X_train, X_test = X, X
+            y_train, y_test = y, y
+        elif len(X) > 10 and min_class_count >= 2:
+            # Разделение на train/test со стратификацией (только если все классы имеют >= 2 примера)
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42, stratify=y if len(y.unique()) > 1 else None
+                X, y, test_size=0.2, random_state=42, stratify=y
             )
         else:
-            X_train, X_test, y_train, y_test = X, X, y, y
+            # Средний объем данных - используем все для обучения
+            X_train, X_test = X, X
+            y_train, y_test = y, y
         
         # Нормализация
         X_train_scaled = self.scaler.fit_transform(X_train)
