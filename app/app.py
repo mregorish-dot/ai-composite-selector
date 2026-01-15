@@ -364,36 +364,19 @@ elif page == "📊 Выбор композита":
                 step=0.1
             )
         
-        st.markdown("---")
-        
-        # Показатели MVC (выводятся из анализа ЭМГ)
+        # Расчет MVC показателей (скрыто, используется для расчетов)
         if masseter_r_max and masseter_l_max and temporalis_r_max and temporalis_l_max:
-            with st.expander("📊 Анализ MVC показателей", expanded=False):
-                # Расчет средних значений
-                avg_masseter_max = (masseter_r_max + masseter_l_max) / 2
-                avg_temporalis_max = (temporalis_r_max + temporalis_l_max) / 2
-                
-                # Референсные значения (контрольная группа Synapsys)
-                ref_masseter_max = 355  # Примерное среднее
-                ref_temporalis_max = 260  # Примерное среднее
-                
-                # Расчет гиперфункции в процентах
-                mvc_hyperfunction_masseter = ((avg_masseter_max - ref_masseter_max) / ref_masseter_max) * 100 if ref_masseter_max > 0 else 0
-                mvc_hyperfunction_temporalis = ((avg_temporalis_max - ref_temporalis_max) / ref_temporalis_max) * 100 if ref_temporalis_max > 0 else 0
-                
-                col_mvc1, col_mvc2 = st.columns(2)
-                with col_mvc1:
-                    st.metric("MVC Жевательная мышца", f"{avg_masseter_max:.1f} мкВ")
-                    st.metric("MVC Гиперфункция (жевательная)", f"{mvc_hyperfunction_masseter:+.1f}%", 
-                             delta="Норма" if -10 <= mvc_hyperfunction_masseter <= 10 else "Отклонение")
-                with col_mvc2:
-                    st.metric("MVC Височная мышца", f"{avg_temporalis_max:.1f} мкВ")
-                    st.metric("MVC Гиперфункция (височная)", f"{mvc_hyperfunction_temporalis:+.1f}%",
-                             delta="Норма" if -10 <= mvc_hyperfunction_temporalis <= 10 else "Отклонение")
-                
-                st.info("💡 Эти показатели рассчитываются автоматически на основе введенных ЭМГ-данных")
+            avg_masseter_max = (masseter_r_max + masseter_l_max) / 2
+            avg_temporalis_max = (temporalis_r_max + temporalis_l_max) / 2
+            ref_masseter_max = 355
+            ref_temporalis_max = 260
+            mvc_hyperfunction_masseter = ((avg_masseter_max - ref_masseter_max) / ref_masseter_max) * 100 if ref_masseter_max > 0 else 0
+            mvc_hyperfunction_temporalis = ((avg_temporalis_max - ref_temporalis_max) / ref_temporalis_max) * 100 if ref_temporalis_max > 0 else 0
+        else:
+            mvc_hyperfunction_masseter = None
+            mvc_hyperfunction_temporalis = None
         
-        st.subheader("Дополнительная информация")
+        st.markdown("---")
         
         col3, col4 = st.columns(2)
         
