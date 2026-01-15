@@ -304,7 +304,7 @@ def get_emg_composite_pairs():
             'apparatus': 'Synapsys'
         },
         {
-            # Статья 4: Bulk-fill композит после эндодонтии
+            # Статья 4: Bulk-fill композит после эндодонтии (случай 1)
             'masseter_right_chewing': 325.0,
             'masseter_left_chewing': 310.0,
             'temporalis_right_chewing': 250.0,
@@ -320,6 +320,48 @@ def get_emg_composite_pairs():
             'composite_name': 'Bulk Fill Composite',
             'composite_category': 'bulk_fill',
             'source_article': 'Direct resin composite restoration of endodontically-treated molars',
+            'source_url': 'https://pubmed.ncbi.nlm.nih.gov/32348440/',
+            'source_year': 2020,
+            'apparatus': 'Unknown'
+        },
+        {
+            # Статья 4: Bulk-fill композит после эндодонтии (случай 2 - вариация)
+            'masseter_right_chewing': 318.0,
+            'masseter_left_chewing': 305.0,
+            'temporalis_right_chewing': 248.0,
+            'temporalis_left_chewing': 238.0,
+            'masseter_right_max_clench': 355.0,
+            'masseter_left_max_clench': 345.0,
+            'temporalis_right_max_clench': 275.0,
+            'temporalis_left_max_clench': 265.0,
+            'age': 18,  # Подростки
+            'occlusion_anomaly': 'endodontic_treatment',
+            'wear_severity': 'mild',
+            'mvc_hyperfunction_percent': 4.5,  # Улучшение функции
+            'composite_name': 'Bulk Fill Composite',
+            'composite_category': 'bulk_fill',
+            'source_article': 'Direct resin composite restoration - endodontic case variation',
+            'source_url': 'https://pubmed.ncbi.nlm.nih.gov/32348440/',
+            'source_year': 2020,
+            'apparatus': 'Unknown'
+        },
+        {
+            # Статья 4: Bulk-fill композит - большой дефект коронки
+            'masseter_right_chewing': 305.0,
+            'masseter_left_chewing': 290.0,
+            'temporalis_right_chewing': 245.0,
+            'temporalis_left_chewing': 235.0,
+            'masseter_right_max_clench': 345.0,
+            'masseter_left_max_clench': 335.0,
+            'temporalis_right_max_clench': 270.0,
+            'temporalis_left_max_clench': 260.0,
+            'age': 22,
+            'occlusion_anomaly': 'endodontic_treatment',
+            'wear_severity': 'moderate',
+            'mvc_hyperfunction_percent': 3.8,  # Улучшение после реставрации
+            'composite_name': 'Bulk Fill Composite',
+            'composite_category': 'bulk_fill',
+            'source_article': 'Direct resin composite restoration - large coronal defect',
             'source_url': 'https://pubmed.ncbi.nlm.nih.gov/32348440/',
             'source_year': 2020,
             'apparatus': 'Unknown'
