@@ -72,6 +72,7 @@ class CompositeDatabase:
         self.composites = pd.DataFrame(self.data['composites'])
         self.criteria = self.data['selection_criteria']
         self.emg_classification = self.data['emg_based_classification']
+        self.bushan_classification = self.data.get('bushan_classification', {})
     
     def filter_composites(
         self,
@@ -143,9 +144,27 @@ class CompositeDatabase:
             df = df[df['microhardness_KHN'] >= additional['microhardness_KHN_min']]
             df = df[df['polymerization_shrinkage_percent'] <= additional['polymerization_shrinkage_percent_max']]
         
-        # Критерии на основе ЭМГ-классификации стираемости
+        # Критерии на основе классификации стираемости
         if wear_severity:
-            if wear_severity in ['none', 'mild']:
+            # Классификация по Бушану
+            if wear_severity.startswith('bushan_'):
+                degree = wear_severity.replace('bushan_', '')
+                if self.bushan_classification and 'degrees' in self.bushan_classification:
+                    if degree in self.bushan_classification['degrees']:
+                        criteria = self.bushan_classification['degrees'][degree]
+                        min_hardness = criteria.get('recommended_microhardness_min', 50)
+                        df = df[df['microhardness_KHN'] >= min_hardness]
+                        
+                        recommended_wear = criteria.get('recommended_wear_resistance', 'high')
+                        if recommended_wear == 'very_high':
+                            df = df[df['wear_resistance'].isin(['very_high', 'high'])]
+                        else:
+                            df = df[df['wear_resistance'].isin(['high', 'very_high', 'medium'])]
+                        
+                        min_filler = criteria.get('recommended_filler_min', 60)
+                        df = df[df['filler_content_percent'] >= min_filler]
+            # ЭМГ-классификация
+            elif wear_severity in ['none', 'mild']:
                 criteria = self.emg_classification['wear_severity_none_mild']
                 min_hardness = criteria['recommended_microhardness_min']
                 df = df[df['microhardness_KHN'] >= min_hardness]
@@ -350,10 +369,10 @@ class CompositeSelector:
     
     def _classify_wear_severity(self, patient_data: PatientData) -> Optional[str]:
         """
-        Классификация степени стираемости на основе ЭМГ
+        Классификация степени стираемости на основе ЭМГ или Бушан
         
         Returns:
-            Степень стираемости: none, mild, moderate, severe
+            Степень стираемости: none, mild, moderate, severe, или bushan_I, bushan_II, bushan_III, bushan_IV
         """
         if patient_data.wear_severity:
             return patient_data.wear_severity
