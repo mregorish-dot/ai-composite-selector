@@ -927,7 +927,12 @@ elif page == "🤖 Обучение модели":
         if st.button("🔍 Извлечь пары 'ЭМГ-показатели -> композит' из статей", use_container_width=True):
             with st.spinner("Извлечение клинических данных из статей..."):
                 try:
-                    from model_trainer import ClinicalDataExtractor
+                    try:
+                        from model_trainer import ClinicalDataExtractor
+                    except ImportError:
+                        # Если модуль не найден, создаем заглушку
+                        st.warning("⚠️ Модуль model_trainer не найден. Установите зависимости: pip install scikit-learn")
+                        st.stop()
                     
                     extractor = ClinicalDataExtractor()
                     total_pairs = 0

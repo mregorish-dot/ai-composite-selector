@@ -72,11 +72,30 @@ class CompositeDatabase:
             if json_path is None:
                 json_path = "База_композитов.json"
         
-        with open(json_path, 'r', encoding='utf-8') as f:
-            self.data = json.load(f)
+        try:
+            with open(json_path, 'r', encoding='utf-8') as f:
+                self.data = json.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Файл не найден: {json_path}")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Ошибка парсинга JSON файла {json_path}: {e}")
+        
+        # Безопасная загрузка данных с проверками
+        if not isinstance(self.data, dict):
+            raise ValueError("Файл База_композитов.json должен содержать словарь (JSON объект)")
+        
+        # Проверяем наличие обязательных ключей
+        if 'composites' not in self.data:
+            raise KeyError("Отсутствует обязательный ключ 'composites' в JSON файле")
+        if 'selection_criteria' not in self.data:
+            raise KeyError("Отсутствует обязательный ключ 'selection_criteria' в JSON файле")
+        if 'emg_based_classification' not in self.data:
+            raise KeyError("Отсутствует обязательный ключ 'emg_based_classification' в JSON файле")
+        
+        # Загружаем данные с безопасными значениями по умолчанию
         self.composites = pd.DataFrame(self.data['composites'])
-        self.criteria = self.data['selection_criteria']
-        self.emg_classification = self.data['emg_based_classification']
+        self.criteria = self.data.get('selection_criteria', {})
+        self.emg_classification = self.data.get('emg_based_classification', {})
         self.bushan_classification = self.data.get('bushan_classification', {})
         self.twes2_classification = self.data.get('twes2_classification', {})
     
