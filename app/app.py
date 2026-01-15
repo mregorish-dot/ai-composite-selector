@@ -104,9 +104,13 @@ if 'articles' not in st.session_state:
 if 'knowledge_base' not in st.session_state:
     st.session_state.knowledge_base = st.session_state.knowledge_extractor.get_knowledge_base()
 if 'model_trained' not in st.session_state:
-    st.session_state.model_trained = True  # Модель уже обучена на предзагруженных статьях
+    st.session_state.model_trained = False  # Модель будет обучена на данных из статей
 if 'article_rules' not in st.session_state:
     st.session_state.article_rules = get_extraction_rules()
+if 'ml_model' not in st.session_state:
+    st.session_state.ml_model = None  # ML модель для предсказания
+if 'clinical_pairs' not in st.session_state:
+    st.session_state.clinical_pairs = []  # Пары ЭМГ -> композит
 
 # Боковое меню
 st.sidebar.title("📋 Меню")
@@ -914,47 +918,148 @@ elif page == "🤖 Обучение модели":
         
         st.markdown("---")
         
+        # Извлечение клинических пар (ЭМГ -> композит)
+        st.subheader("🔬 Извлечение клинических данных")
+        
+        if 'clinical_pairs' not in st.session_state:
+            st.session_state.clinical_pairs = []
+        
+        if st.button("🔍 Извлечь пары 'ЭМГ-показатели -> композит' из статей", use_container_width=True):
+            with st.spinner("Извлечение клинических данных из статей..."):
+                try:
+                    from model_trainer import ClinicalDataExtractor
+                    
+                    extractor = ClinicalDataExtractor()
+                    total_pairs = 0
+                    
+                    # Обрабатываем все статьи
+                    for article_data in st.session_state.articles:
+                        if 'text' in article_data and article_data['text']:
+                            pairs = extractor.extract_patient_data(
+                                article_data['text'],
+                                article_title=article_data.get('title', ''),
+                                article_url=article_data.get('url', ''),
+                                article_year=article_data.get('year')
+                            )
+                            total_pairs += len(pairs)
+                    
+                    st.session_state.clinical_pairs = extractor.extracted_pairs
+                    
+                    st.success(f"✅ Извлечено {total_pairs} пар 'ЭМГ-показатели -> композит'")
+                    
+                    if total_pairs > 0:
+                        # Показываем примеры
+                        st.markdown("**Примеры извлеченных пар:**")
+                        for i, pair in enumerate(st.session_state.clinical_pairs[:5], 1):
+                            with st.expander(f"Пара {i}: {pair.composite_name or 'Контрольные значения'}"):
+                                st.write(f"**Источник:** {pair.source_article}")
+                                if pair.masseter_right_chewing:
+                                    st.write(f"Жевательная правая (жевание): {pair.masseter_right_chewing} мкВ")
+                                if pair.composite_name:
+                                    st.write(f"**Композит:** {pair.composite_name}")
+                                else:
+                                    st.write("**Тип:** Контрольные ЭМГ-значения")
+                except Exception as e:
+                    st.error(f"❌ Ошибка извлечения: {e}")
+                    import traceback
+                    st.code(traceback.format_exc())
+        
         # Обучение модели
-        st.subheader("Обучение модели")
+        st.markdown("---")
+        st.subheader("🤖 Обучение модели")
         
-        st.markdown("""
-        Модель будет обучена на извлеченных знаниях из научных статей.
-        Это позволит системе использовать актуальные данные из литературы для выбора композита.
-        """)
-        
-        if st.button("🚀 Начать обучение на основе статей", use_container_width=True):
-            with st.spinner("Обучение модели на основе научных статей..."):
-                import time
-                time.sleep(3)  # Имитация обучения
-                
-                st.session_state.model_trained = True
-                st.success("✅ Модель успешно обучена на основе научных статей!")
-                
-                st.markdown("---")
-                st.subheader("📊 Результаты обучения")
-                
-                col1, col2, col3, col4 = st.columns(4)
-                col1.metric("Обработано статей", kb['articles_count'])
-                col2.metric("Извлечено знаний", 
-                           len(kb['composite_recommendations']) + 
-                           len(kb['emg_guidelines']) + 
-                           len(kb['clinical_criteria']))
-                col3.metric("Рекомендаций", len(kb['composite_recommendations']))
-                col4.metric("ЭМГ-данных", len(kb['emg_guidelines']))
-                
-                st.markdown("---")
-                st.info("""
-                ✅ **Модель обучена!** Теперь система будет использовать знания из загруженных статей 
-                для выбора композита. Рекомендации будут основаны на актуальных научных данных.
-                """)
-                
-                # Сохранение базы знаний
-                if st.button("💾 Сохранить базу знаний", use_container_width=True):
+        if len(st.session_state.clinical_pairs) == 0:
+            st.warning("⚠️ Сначала извлеките клинические данные из статей")
+        else:
+            pairs_with_composites = [p for p in st.session_state.clinical_pairs if p.composite_name]
+            st.info(f"""
+            📊 **Доступно для обучения:**
+            - Всего пар: {len(st.session_state.clinical_pairs)}
+            - Пар с композитами: {len(pairs_with_composites)}
+            - Контрольных значений: {len(st.session_state.clinical_pairs) - len(pairs_with_composites)}
+            """)
+            
+            model_type = st.radio(
+                "Тип модели",
+                ["Random Forest", "Gradient Boosting"],
+                help="Random Forest - быстрее, Gradient Boosting - точнее"
+            )
+            
+            if st.button("🚀 Обучить модель на клинических данных", use_container_width=True):
+                with st.spinner("Обучение модели..."):
                     try:
-                        st.session_state.knowledge_extractor.save_knowledge_base("knowledge_base.json")
-                        st.success("✅ База знаний сохранена в файл knowledge_base.json")
+                        from model_trainer import CompositeModelTrainer
+                        
+                        trainer = CompositeModelTrainer()
+                        model_type_lower = model_type.lower().replace(" ", "_")
+                        
+                        results = trainer.train(
+                            st.session_state.clinical_pairs,
+                            model_type=model_type_lower
+                        )
+                        
+                        # Сохраняем модель в session state
+                        st.session_state.ml_model = trainer
+                        st.session_state.model_trained = True
+                        
+                        st.success("✅ Модель успешно обучена!")
+                        
+                        st.markdown("---")
+                        st.subheader("📊 Результаты обучения")
+                        
+                        col1, col2, col3, col4 = st.columns(4)
+                        col1.metric("Примеров для обучения", results['train_size'])
+                        col2.metric("Примеров для теста", results['test_size'])
+                        col3.metric("Уникальных композитов", results['unique_composites'])
+                        if results['accuracy']:
+                            col4.metric("Точность", f"{results['accuracy']:.1%}")
+                        
+                        st.markdown("---")
+                        st.info("""
+                        ✅ **Модель обучена!** Теперь система может использовать машинное обучение 
+                        для предсказания композита на основе ЭМГ-данных из научных статей.
+                        """)
+                        
+                        # Сохранение модели
+                        if st.button("💾 Сохранить модель", use_container_width=True):
+                            try:
+                                model_path = "trained_model.pkl"
+                                trainer.save_model(model_path)
+                                st.success(f"✅ Модель сохранена в {model_path}")
+                            except Exception as e:
+                                st.error(f"❌ Ошибка сохранения: {e}")
+                                
+                    except ValueError as e:
+                        st.warning(f"⚠️ {e}")
+                        st.info("💡 Добавьте больше статей с данными 'ЭМГ-показатели -> композит' для обучения модели")
                     except Exception as e:
-                        st.error(f"❌ Ошибка сохранения: {e}")
+                        st.error(f"❌ Ошибка обучения: {e}")
+                        import traceback
+                        st.code(traceback.format_exc())
+        
+        # Сохранение базы знаний
+        st.markdown("---")
+        st.subheader("💾 Сохранение данных")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("💾 Сохранить базу знаний", use_container_width=True):
+                try:
+                    st.session_state.knowledge_extractor.save_knowledge_base("knowledge_base.json")
+                    st.success("✅ База знаний сохранена в файл knowledge_base.json")
+                except Exception as e:
+                    st.error(f"❌ Ошибка сохранения: {e}")
+        
+        with col2:
+            if st.button("💾 Сохранить клинические пары", use_container_width=True):
+                try:
+                    pairs_data = [pair.to_dict() for pair in st.session_state.clinical_pairs]
+                    with open("clinical_pairs.json", 'w', encoding='utf-8') as f:
+                        json.dump(pairs_data, f, ensure_ascii=False, indent=2)
+                    st.success("✅ Клинические пары сохранены в файл clinical_pairs.json")
+                except Exception as e:
+                    st.error(f"❌ Ошибка сохранения: {e}")
 
 # ==================== СТАТИСТИКА ====================
 elif page == "📈 Статистика":

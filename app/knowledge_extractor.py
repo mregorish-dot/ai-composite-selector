@@ -191,6 +191,20 @@ class KnowledgeExtractor:
         self.articles.append(article)
         return article
     
+    def extract_clinical_pairs(self, text: str, article_title: str = "", article_url: str = "", article_year: Optional[int] = None) -> List[Dict]:
+        """
+        Извлечение пар "ЭМГ-данные -> композит" из статьи
+        
+        Использует улучшенные паттерны для поиска клинических данных
+        """
+        from model_trainer import ClinicalDataExtractor
+        
+        extractor = ClinicalDataExtractor()
+        pairs = extractor.extract_patient_data(text, article_title, article_url, article_year)
+        
+        # Конвертируем в словари для сохранения
+        return [pair.to_dict() for pair in pairs]
+    
     def extract_knowledge_from_text(self, text: str, article_title: str = "") -> ExtractedKnowledge:
         """
         Извлечение знаний из текста статьи
