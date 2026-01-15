@@ -50,6 +50,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Загрузка кастомного CSS для минималистичного дизайна в стиле Apple
+def load_custom_css():
+    """Загрузка кастомного CSS файла"""
+    css_path = Path(__file__).parent / "custom_style.css"
+    if css_path.exists():
+        with open(css_path, 'r', encoding='utf-8') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+# Применение кастомного CSS
+load_custom_css()
+
 # Заголовок
 st.title("🦷 ИИ-система выбора композита для реставрации жевательных зубов")
 st.markdown("---")
