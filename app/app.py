@@ -114,21 +114,58 @@ if 'knowledge_extractor' not in st.session_state:
                 continue
 
 if 'articles' not in st.session_state:
-    # Загружаем предзагруженные + сохраненные статьи
+    # Загружаем предзагруженные + клинические + сохраненные статьи
     preloaded = get_preloaded_articles()
     saved = load_saved_articles()
-    st.session_state.articles = preloaded + saved
+    # Добавляем клинические статьи
+    try:
+        from clinical_articles_data import get_clinical_articles
+        clinical = get_clinical_articles()
+    except ImportError:
+        clinical = []
+    # Объединяем, фильтруя некорректные данные
+    all_articles = []
+    for art in preloaded + clinical + saved:
+        if isinstance(art, dict) and 'title' in art:
+            all_articles.append(art)
+    st.session_state.articles = all_articles
 
 if 'knowledge_base' not in st.session_state:
     st.session_state.knowledge_base = st.session_state.knowledge_extractor.get_knowledge_base()
 if 'model_trained' not in st.session_state:
-    st.session_state.model_trained = False  # Модель будет обучена на данных из статей
+    # Пытаемся обучить модель автоматически на предзагруженных данных
+    try:
+        if 'clinical_pairs' in st.session_state and len(st.session_state.clinical_pairs) > 0:
+            pairs_with_composites = [p for p in st.session_state.clinical_pairs if p.composite_name]
+            if len(pairs_with_composites) >= 2:
+                from model_trainer import CompositeModelTrainer
+                trainer = CompositeModelTrainer()
+                trainer.train(pairs_with_composites, model_type='random_forest')
+                st.session_state.ml_model = trainer
+                st.session_state.model_trained = True
+            else:
+                st.session_state.model_trained = False
+        else:
+            st.session_state.model_trained = False
+    except Exception:
+        st.session_state.model_trained = False  # Модель будет обучена на данных из статей
 if 'article_rules' not in st.session_state:
     st.session_state.article_rules = get_extraction_rules()
 if 'ml_model' not in st.session_state:
     st.session_state.ml_model = None  # ML модель для предсказания
 if 'clinical_pairs' not in st.session_state:
-    st.session_state.clinical_pairs = []  # Пары ЭМГ -> композит
+    # Предзагружаем пары из клинических статей
+    try:
+        from clinical_articles_data import get_emg_composite_pairs
+        from model_trainer import EMGCompositePair
+        preloaded_pairs_data = get_emg_composite_pairs()
+        preloaded_pairs = []
+        for pair_data in preloaded_pairs_data:
+            pair = EMGCompositePair(**pair_data)
+            preloaded_pairs.append(pair)
+        st.session_state.clinical_pairs = preloaded_pairs
+    except (ImportError, Exception) as e:
+        st.session_state.clinical_pairs = []  # Пары ЭМГ -> композит
 
 # Боковое меню
 st.sidebar.title("📋 Меню")

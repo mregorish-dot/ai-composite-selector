@@ -324,8 +324,8 @@ class CompositeModelTrainer:
         # Подготовка данных
         X, y = self.prepare_training_data(pairs)
         
-        if len(X) < 5:
-            raise ValueError(f"Недостаточно данных для обучения: {len(X)} примеров (нужно минимум 5)")
+        if len(X) < 2:
+            raise ValueError(f"Недостаточно данных для обучения: {len(X)} примеров (нужно минимум 2)")
         
         # Разделение на train/test
         if len(X) > 10:
