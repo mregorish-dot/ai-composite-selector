@@ -366,46 +366,105 @@ class CompositeSelector:
         }
         emg_features = create_emg_features(emg_dict, self.normalizer)
         
-        # Разделение на приоритетные (наполнитель 25-50%) и альтернативные (>50%)
-        # Расширяем диапазон приоритетных до 20-55% для большей гибкости
-        priority_composites = filtered[
-            (filtered['filler_content_percent'] >= 20.0) & 
-            (filtered['filler_content_percent'] < 55.0)
+        # Многоуровневая система ранжирования: Идеальные -> Хорошие -> Альтернативные
+        # 1. Идеальные варианты: соответствуют всем строгим критериям
+        #    - Наполнитель: 25-50% (строго оптимальный диапазон)
+        #    - Усадка: <3% (по статье 1)
+        #    - Микротвердость: соответствует требованиям
+        ideal_composites = filtered[
+            (filtered['filler_content_percent'] >= 25.0) &
+            (filtered['filler_content_percent'] < 50.0) &
+            (filtered['polymerization_shrinkage_percent'] < 3.0)
         ].copy()
         
+        # 2. Хорошие варианты: почти идеальные, но с небольшими отклонениями
+        #    - Наполнитель: 20-55% (расширенный оптимальный диапазон)
+        #    - Усадка: <3%
+        good_composites = filtered[
+            ((filtered['filler_content_percent'] >= 20.0) &
+             (filtered['filler_content_percent'] < 55.0)) &
+            (filtered['polymerization_shrinkage_percent'] < 3.0) &
+            ~filtered.index.isin(ideal_composites.index)  # Исключаем уже выбранные идеальные
+        ].copy()
+        
+        # 3. Приемлемые варианты: соответствуют основным критериям, но не всем
+        acceptable_composites = filtered[
+            (filtered['filler_content_percent'] >= 20.0) &
+            (filtered['filler_content_percent'] < 55.0) &
+            ~filtered.index.isin(ideal_composites.index) &
+            ~filtered.index.isin(good_composites.index)
+        ].copy()
+        
+        # 4. Альтернативные варианты: наполнитель >55%, но материал пригоден
         alternative_composites = filtered[
-            filtered['filler_content_percent'] >= 55.0
+            (filtered['filler_content_percent'] >= 55.0) &
+            (filtered['polymerization_shrinkage_percent'] < 3.0)  # Все равно усадка должна быть низкой
         ].copy() if include_alternatives else pd.DataFrame()
         
-        # Расчет оценок для приоритетных композитов
-        priority_results = []
-        for idx, composite in priority_composites.iterrows():
+        # Расчет оценок и категоризация
+        ideal_results = []
+        good_results = []
+        acceptable_results = []
+        alternative_results = []
+        
+        # Идеальные варианты
+        for idx, composite in ideal_composites.iterrows():
+            score = self.db.calculate_composite_score(
+                composite, emg_features.iloc[0], patient_data
+            )
+            # Максимальный бонус за идеальность
+            score += 0.3  # Дополнительный бонус за идеальное соответствие всем критериям
+            justification = self._generate_justification(
+                composite, score, patient_data, wear_severity, 
+                is_priority=True, quality_level='ideal'
+            )
+            ideal_results.append((composite, score, justification))
+        
+        # Хорошие варианты
+        for idx, composite in good_composites.iterrows():
+            score = self.db.calculate_composite_score(
+                composite, emg_features.iloc[0], patient_data
+            )
+            score += 0.15  # Бонус за хорошее соответствие
+            justification = self._generate_justification(
+                composite, score, patient_data, wear_severity,
+                is_priority=True, quality_level='good'
+            )
+            good_results.append((composite, score, justification))
+        
+        # Приемлемые варианты
+        for idx, composite in acceptable_composites.iterrows():
             score = self.db.calculate_composite_score(
                 composite, emg_features.iloc[0], patient_data
             )
             justification = self._generate_justification(
-                composite, score, patient_data, wear_severity, is_priority=True
+                composite, score, patient_data, wear_severity,
+                is_priority=True, quality_level='acceptable'
             )
-            priority_results.append((composite, score, justification))
+            acceptable_results.append((composite, score, justification))
         
-        # Расчет оценок для альтернативных композитов
-        alternative_results = []
+        # Альтернативные варианты
         if include_alternatives and not alternative_composites.empty:
             for idx, composite in alternative_composites.iterrows():
                 score = self.db.calculate_composite_score(
                     composite, emg_features.iloc[0], patient_data
                 )
+                # Небольшой штраф за альтернативность
+                score *= 0.85
                 justification = self._generate_justification(
-                    composite, score, patient_data, wear_severity, is_priority=False
+                    composite, score, patient_data, wear_severity,
+                    is_priority=False, quality_level='alternative'
                 )
                 alternative_results.append((composite, score, justification))
         
-        # Сортировка
-        priority_results.sort(key=lambda x: x[1], reverse=True)
+        # Сортировка внутри каждой категории по убыванию оценки
+        ideal_results.sort(key=lambda x: x[1], reverse=True)
+        good_results.sort(key=lambda x: x[1], reverse=True)
+        acceptable_results.sort(key=lambda x: x[1], reverse=True)
         alternative_results.sort(key=lambda x: x[1], reverse=True)
         
-        # Объединение: сначала приоритетные, потом альтернативные
-        all_results = priority_results + alternative_results
+        # Объединение в правильном порядке: Идеальные -> Хорошие -> Приемлемые -> Альтернативные
+        all_results = ideal_results + good_results + acceptable_results + alternative_results
         
         return all_results[:top_n]
     
@@ -436,7 +495,8 @@ class CompositeSelector:
         score: float,
         patient_data: PatientData,
         wear_severity: Optional[str],
-        is_priority: bool = True
+        is_priority: bool = True,
+        quality_level: str = 'good'
     ) -> Dict:
         """Генерация обоснования выбора"""
         reasons = []
@@ -477,10 +537,19 @@ class CompositeSelector:
         if patient_data.occlusion_anomaly_type:
             reasons.append("Оптимален для пациентов с аномалиями прикуса")
         
-        # Метка приоритета
-        priority_note = ""
-        if not is_priority:
-            priority_note = "Альтернативный вариант (наполнитель вне оптимального диапазона 25-50%)"
+        # Метка качества и приоритета
+        quality_labels = {
+            'ideal': "⭐ ИДЕАЛЬНЫЙ ВАРИАНТ: соответствует всем строгим критериям (наполнитель 25-50%, усадка <3%)",
+            'good': "✅ ХОРОШИЙ ВАРИАНТ: почти идеальное соответствие критериям",
+            'acceptable': "✓ ПРИЕМЛЕМЫЙ ВАРИАНТ: соответствует основным критериям",
+            'alternative': "⚠️ АЛЬТЕРНАТИВНЫЙ ВАРИАНТ: наполнитель >55%, но материал пригоден"
+        }
+        
+        priority_note = quality_labels.get(quality_level, "")
+        if quality_level == 'alternative':
+            is_priority = False
+        else:
+            is_priority = True
         
         return {
             'score': score,
@@ -489,6 +558,7 @@ class CompositeSelector:
             'notes': composite.get('notes', ''),
             'is_priority': is_priority,
             'priority_note': priority_note,
+            'quality_level': quality_level,
             'filler_content': filler
         }
 
