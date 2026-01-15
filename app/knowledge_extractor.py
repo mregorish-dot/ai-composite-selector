@@ -175,18 +175,34 @@ class KnowledgeExtractor:
         year: Optional[int] = None,
         journal: str = "",
         doi: str = "",
-        keywords: List[str] = None
+        keywords: List[str] = None,
+        **kwargs  # Игнорируем дополнительные ключи
     ):
         """Добавление статьи"""
+        # Преобразуем year в int, если это строка
+        if year is not None:
+            try:
+                year = int(year) if not isinstance(year, int) else year
+            except (ValueError, TypeError):
+                year = None
+        
+        # Преобразуем keywords в список, если это строка
+        if keywords is None:
+            keywords = []
+        elif isinstance(keywords, str):
+            keywords = [k.strip() for k in keywords.split(',') if k.strip()]
+        elif not isinstance(keywords, list):
+            keywords = []
+        
         article = Article(
-            title=title,
-            text=text,
-            url=url,
-            authors=authors,
+            title=str(title) if title else "Untitled",
+            text=str(text) if text else "",
+            url=str(url) if url else "",
+            authors=str(authors) if authors else "",
             year=year,
-            journal=journal,
-            doi=doi,
-            keywords=keywords or []
+            journal=str(journal) if journal else "",
+            doi=str(doi) if doi else "",
+            keywords=keywords
         )
         self.articles.append(article)
         return article

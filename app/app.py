@@ -92,8 +92,16 @@ if 'knowledge_extractor' not in st.session_state:
     saved_articles = load_saved_articles()
     for article_data in saved_articles:
         if 'text' in article_data and article_data['text']:
-            article = st.session_state.knowledge_extractor.add_article(**article_data)
-            st.session_state.knowledge_extractor.process_article(article)
+            # Фильтруем только допустимые ключи для add_article
+            allowed_keys = ['title', 'text', 'url', 'authors', 'year', 'journal', 'doi', 'keywords']
+            filtered_data = {k: v for k, v in article_data.items() if k in allowed_keys}
+            try:
+                article = st.session_state.knowledge_extractor.add_article(**filtered_data)
+                st.session_state.knowledge_extractor.process_article(article)
+            except Exception as e:
+                # Пропускаем статьи с ошибками, чтобы не блокировать запуск приложения
+                print(f"Ошибка при загрузке статьи '{article_data.get('title', 'Unknown')}': {e}")
+                continue
 
 if 'articles' not in st.session_state:
     # Загружаем предзагруженные + сохраненные статьи
