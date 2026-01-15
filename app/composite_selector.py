@@ -44,9 +44,14 @@ class PatientData:
     # Дополнительные данные
     age: Optional[int] = None
     occlusion_anomaly_type: Optional[str] = None
-    wear_severity: Optional[str] = None  # none, mild, moderate, severe
+    wear_severity: Optional[str] = None  # none, mild, moderate, severe, bushan_I-IV, twes_0-4
     mvc_hyperfunction_percent: Optional[float] = None
     mvc_duration_sec_per_min: Optional[float] = None
+    # Дополнительные фильтры
+    region_filter: Optional[List[str]] = None
+    manufacturer_filter: Optional[List[str]] = None
+    year_min: Optional[int] = None
+    price_max: Optional[float] = None
 
 
 class CompositeDatabase:
@@ -73,13 +78,18 @@ class CompositeDatabase:
         self.criteria = self.data['selection_criteria']
         self.emg_classification = self.data['emg_based_classification']
         self.bushan_classification = self.data.get('bushan_classification', {})
+        self.twes2_classification = self.data.get('twes2_classification', {})
     
     def filter_composites(
         self,
         for_occlusal: bool = True,
         has_occlusion_anomaly: bool = False,
         wear_severity: Optional[str] = None,
-        use_article_rules: bool = True
+        use_article_rules: bool = True,
+        region_filter: Optional[List[str]] = None,
+        manufacturer_filter: Optional[List[str]] = None,
+        year_min: Optional[int] = None,
+        price_max: Optional[float] = None
     ) -> pd.DataFrame:
         """
         Фильтрация композитов по критериям
@@ -146,8 +156,25 @@ class CompositeDatabase:
         
         # Критерии на основе классификации стираемости
         if wear_severity:
+            # Классификация TWES 2.0
+            if wear_severity.startswith('twes_'):
+                grade = wear_severity.replace('twes_', '')
+                if self.twes2_classification and 'grades' in self.twes2_classification:
+                    if grade in self.twes2_classification['grades']:
+                        criteria = self.twes2_classification['grades'][grade]
+                        min_hardness = criteria.get('recommended_microhardness_min', 50)
+                        df = df[df['microhardness_KHN'] >= min_hardness]
+                        
+                        recommended_wear = criteria.get('recommended_wear_resistance', 'high')
+                        if recommended_wear == 'very_high':
+                            df = df[df['wear_resistance'].isin(['very_high', 'high'])]
+                        else:
+                            df = df[df['wear_resistance'].isin(['high', 'very_high', 'medium'])]
+                        
+                        min_filler = criteria.get('recommended_filler_min', 60)
+                        df = df[df['filler_content_percent'] >= min_filler]
             # Классификация по Бушану
-            if wear_severity.startswith('bushan_'):
+            elif wear_severity.startswith('bushan_'):
                 degree = wear_severity.replace('bushan_', '')
                 if self.bushan_classification and 'degrees' in self.bushan_classification:
                     if degree in self.bushan_classification['degrees']:
@@ -175,6 +202,21 @@ class CompositeDatabase:
                 # Принимаем как "high", так и "very_high" износостойкость
                 recommended_wear = criteria['recommended_wear_resistance']
                 df = df[df['wear_resistance'].isin([recommended_wear, 'high'])]
+        
+        # Дополнительные фильтры
+        if region_filter and 'Все' not in region_filter:
+            df = df[df['region'].isin(region_filter)]
+        
+        if manufacturer_filter and 'Все' not in manufacturer_filter:
+            df = df[df['manufacturer'].isin(manufacturer_filter)]
+        
+        if year_min:
+            if 'year_released' in df.columns:
+                df = df[df['year_released'] >= year_min]
+        
+        if price_max:
+            if 'price_rub' in df.columns:
+                df = df[df['price_rub'] <= price_max]
         
         return df
     

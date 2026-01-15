@@ -14,7 +14,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "Dentsply Sirona",
-      "notes": "Высокая микротвердость, подходит для жевательных зубов"
+      "notes": "Высокая микротвердость, подходит для жевательных зубов",
+      "year_released": 2015,
+      "price_rub": 4500
     },
     {
       "name": "TBF",
@@ -30,7 +32,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Подходит для жевательных зубов"
+      "notes": "Подходит для жевательных зубов",
+      "year_released": 2013,
+      "price_rub": 3800
     },
     {
       "name": "FBP",
@@ -46,7 +50,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "3M ESPE",
-      "notes": "Подходит для жевательных зубов"
+      "notes": "Подходит для жевательных зубов",
+      "year_released": 2013,
+      "price_rub": 4200
     },
     {
       "name": "ADM",
@@ -62,7 +68,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "Voco",
-      "notes": "Ormocer матрица, низкая микротвердость, не рекомендуется для окклюзионных поверхностей"
+      "notes": "Ormocer матрица, низкая микротвердость, не рекомендуется для окклюзионных поверхностей",
+      "year_released": 2016,
+      "price_rub": 3500
     },
     {
       "name": "Z3XT",
@@ -78,7 +86,9 @@
       "category": "conventional",
       "region": "international",
       "manufacturer": "3M ESPE",
-      "notes": "Традиционный композит, высокая микротвердость, ограниченная глубина полимеризации"
+      "notes": "Традиционный композит, высокая микротвердость, ограниченная глубина полимеризации",
+      "year_released": 2008,
+      "price_rub": 3200
     },
     {
       "name": "Z3F",
@@ -94,7 +104,9 @@
       "category": "low_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "3M ESPE",
-      "notes": "НЕ подходит для жевательных зубов, требует покрытия, исключен из выбора"
+      "notes": "НЕ подходит для жевательных зубов, требует покрытия, исключен из выбора",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "XB",
@@ -110,7 +122,9 @@
       "category": "low_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "Dentsply Sirona",
-      "notes": "НЕ подходит для жевательных зубов, требует покрытия, исключен из выбора"
+      "notes": "НЕ подходит для жевательных зубов, требует покрытия, исключен из выбора",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "SDR",
@@ -126,7 +140,9 @@
       "category": "low_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "Dentsply Sirona",
-      "notes": "НЕ подходит для жевательных зубов, требует покрытия, исключен из выбора"
+      "notes": "НЕ подходит для жевательных зубов, требует покрытия, исключен из выбора",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "Filtek Supreme Ultra",
@@ -142,7 +158,9 @@
       "category": "nanocomposite",
       "region": "USA",
       "manufacturer": "3M ESPE",
-      "notes": "Нанокомпозит, популярен в США, высокая прочность и эстетика"
+      "notes": "Нанокомпозит, популярен в США, высокая прочность и эстетика",
+      "year_released": 2010,
+      "price_rub": 4800
     },
     {
       "name": "Aelite Aesthetic Enamel",
@@ -158,7 +176,9 @@
       "category": "nanocomposite",
       "region": "USA",
       "manufacturer": "Bisco",
-      "notes": "Высокоэстетичный нанокомпозит, широко используется в США"
+      "notes": "Высокоэстетичный нанокомпозит, широко используется в США",
+      "year_released": 2012,
+      "price_rub": 2800
     },
     {
       "name": "Aelite All-Purpose Body",
@@ -174,7 +194,9 @@
       "category": "microhybrid",
       "region": "USA",
       "manufacturer": "Bisco",
-      "notes": "Универсальный микрогибридный композит, популярен в США"
+      "notes": "Универсальный микрогибридный композит, популярен в США",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "Estelite Sigma Quick",
@@ -190,7 +212,9 @@
       "category": "nanocomposite",
       "region": "USA",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Быстрая полимеризация, популярен в США и Азии"
+      "notes": "Быстрая полимеризация, популярен в США и Азии",
+      "year_released": 2014,
+      "price_rub": 3100
     },
     {
       "name": "ДентЛайт",
@@ -206,7 +230,9 @@
       "category": "microhybrid",
       "region": "Russia",
       "manufacturer": "ОЭЗ ВладМиВа",
-      "notes": "Российский микрогибридный композит, высокая пластичность"
+      "notes": "Российский микрогибридный композит, высокая пластичность",
+      "year_released": 2015,
+      "price_rub": 2500
     },
     {
       "name": "Омега Дент Универсал",
@@ -222,7 +248,9 @@
       "category": "microhybrid",
       "region": "Russia",
       "manufacturer": "Омега Дент",
-      "notes": "Российский универсальный композит, не уступает зарубежным аналогам"
+      "notes": "Российский универсальный композит, не уступает зарубежным аналогам",
+      "year_released": 2016,
+      "price_rub": 2200
     },
     {
       "name": "Charisma",
@@ -238,7 +266,9 @@
       "category": "microhybrid",
       "region": "Russia",
       "manufacturer": "Heraeus Kulzer",
-      "notes": "Популярен в России, хорошее соотношение цена-качество"
+      "notes": "Популярен в России, хорошее соотношение цена-качество",
+      "year_released": 2011,
+      "price_rub": 2900
     },
     {
       "name": "GrandioSO",
@@ -254,7 +284,9 @@
       "category": "nanocomposite",
       "region": "Italy",
       "manufacturer": "Voco",
-      "notes": "Немецкий производитель, популярен в Италии, нанокомпозит"
+      "notes": "Немецкий производитель, популярен в Италии, нанокомпозит",
+      "year_released": 2013,
+      "price_rub": 3600
     },
     {
       "name": "Enamel Plus HFO",
@@ -270,7 +302,9 @@
       "category": "microhybrid",
       "region": "Italy",
       "manufacturer": "Micerium",
-      "notes": "Итальянский производитель, высокое качество"
+      "notes": "Итальянский производитель, высокое качество",
+      "year_released": 2014,
+      "price_rub": 3400
     },
     {
       "name": "G-aenial",
@@ -286,7 +320,9 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "GC Corporation",
-      "notes": "Японский производитель, популярен в Азии, нанокомпозит"
+      "notes": "Японский производитель, популярен в Азии, нанокомпозит",
+      "year_released": 2015,
+      "price_rub": 3300
     },
     {
       "name": "Beautiful II",
@@ -302,7 +338,9 @@
       "category": "microhybrid",
       "region": "Asia",
       "manufacturer": "Shofu",
-      "notes": "Японский производитель, популярен в Азии"
+      "notes": "Японский производитель, популярен в Азии",
+      "year_released": 2016,
+      "price_rub": 3000
     },
     {
       "name": "Estelite Asteria",
@@ -318,7 +356,9 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Японский производитель, высококачественный нанокомпозит"
+      "notes": "Японский производитель, высококачественный нанокомпозит",
+      "year_released": 2017,
+      "price_rub": 3700
     },
     {
       "name": "Filtek Bulk Fill",
@@ -334,7 +374,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "USA",
       "manufacturer": "3M ESPE",
-      "notes": "Bulk fill композит, популярен в США"
+      "notes": "Bulk fill композит, популярен в США",
+      "year_released": 2013,
+      "price_rub": 4100
     },
     {
       "name": "Tetric EvoCeram",
@@ -350,7 +392,9 @@
       "category": "nanocomposite",
       "region": "international",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Универсальный нанокомпозит, популярен во всем мире"
+      "notes": "Универсальный нанокомпозит, популярен во всем мире",
+      "year_released": 2014,
+      "price_rub": 3900
     },
     {
       "name": "Venus Diamond",
@@ -366,7 +410,9 @@
       "category": "microhybrid",
       "region": "international",
       "manufacturer": "Heraeus Kulzer",
-      "notes": "Универсальный микрогибридный композит"
+      "notes": "Универсальный микрогибридный композит",
+      "year_released": 2012,
+      "price_rub": 3200
     },
     {
       "name": "Clearfil Majesty",
@@ -382,7 +428,9 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Kuraray",
-      "notes": "Японский производитель, высококачественный нанокомпозит"
+      "notes": "Японский производитель, высококачественный нанокомпозит",
+      "year_released": 2013,
+      "price_rub": 4400
     },
     {
       "name": "Ceram-X",
@@ -398,7 +446,9 @@
       "category": "microhybrid",
       "region": "international",
       "manufacturer": "Dentsply Sirona",
-      "notes": "Универсальный микрогибридный композит"
+      "notes": "Универсальный микрогибридный композит",
+      "year_released": 2011,
+      "price_rub": 3100
     },
     {
       "name": "Gradia Direct",
@@ -414,7 +464,9 @@
       "category": "microhybrid",
       "region": "Asia",
       "manufacturer": "GC Corporation",
-      "notes": "Японский производитель, популярен в Азии"
+      "notes": "Японский производитель, популярен в Азии",
+      "year_released": 2010,
+      "price_rub": 2800
     },
     {
       "name": "Herculite XRV",
@@ -430,7 +482,9 @@
       "category": "microhybrid",
       "region": "USA",
       "manufacturer": "Kerr",
-      "notes": "Популярен в США, хорошее качество"
+      "notes": "Популярен в США, хорошее качество",
+      "year_released": 2009,
+      "price_rub": 2700
     },
     {
       "name": "Point 4",
@@ -446,7 +500,9 @@
       "category": "microhybrid",
       "region": "USA",
       "manufacturer": "Kerr",
-      "notes": "Популярен в США"
+      "notes": "Популярен в США",
+      "year_released": 2010,
+      "price_rub": 2900
     },
     {
       "name": "Spectrum TPH",
@@ -462,7 +518,9 @@
       "category": "microhybrid",
       "region": "international",
       "manufacturer": "Dentsply Sirona",
-      "notes": "Универсальный композит"
+      "notes": "Универсальный композит",
+      "year_released": 2011,
+      "price_rub": 3000
     },
     {
       "name": "Filtek Z250",
@@ -478,7 +536,9 @@
       "category": "microhybrid",
       "region": "USA",
       "manufacturer": "3M ESPE",
-      "notes": "Классический композит, популярен в США, высокая прочность"
+      "notes": "Классический композит, популярен в США, высокая прочность",
+      "year_released": 2007,
+      "price_rub": 3500
     },
     {
       "name": "Esthet-X HD",
@@ -494,7 +554,9 @@
       "category": "nanocomposite",
       "region": "USA",
       "manufacturer": "Dentsply Sirona",
-      "notes": "Высококачественный нанокомпозит, популярен в США"
+      "notes": "Высококачественный нанокомпозит, популярен в США",
+      "year_released": 2012,
+      "price_rub": 3600
     },
     {
       "name": "Omnichroma",
@@ -510,7 +572,9 @@
       "category": "nanocomposite",
       "region": "international",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Универсальный оттенок, популярен во всем мире"
+      "notes": "Универсальный оттенок, популярен во всем мире",
+      "year_released": 2018,
+      "price_rub": 5200
     },
     {
       "name": "IPS Empress Direct",
@@ -526,7 +590,9 @@
       "category": "microhybrid",
       "region": "international",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Универсальный композит"
+      "notes": "Универсальный композит",
+      "year_released": 2013,
+      "price_rub": 4000
     },
     {
       "name": "Kalore",
@@ -542,7 +608,9 @@
       "category": "nanocomposite",
       "region": "international",
       "manufacturer": "GC Corporation",
-      "notes": "Низкая усадка, высокое качество"
+      "notes": "Низкая усадка, высокое качество",
+      "year_released": 2015,
+      "price_rub": 3800
     },
     {
       "name": "Beautifil II",
@@ -558,7 +626,9 @@
       "category": "microhybrid",
       "region": "Asia",
       "manufacturer": "Shofu",
-      "notes": "Популярен в Азии, хорошее качество"
+      "notes": "Популярен в Азии, хорошее качество",
+      "year_released": 2014,
+      "price_rub": 3400
     },
     {
       "name": "Estelite Beta",
@@ -574,7 +644,9 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Японский производитель, высококачественный"
+      "notes": "Японский производитель, высококачественный",
+      "year_released": 2015,
+      "price_rub": 3500
     },
     {
       "name": "Gradia Direct Anterior",
@@ -590,7 +662,9 @@
       "category": "microhybrid",
       "region": "Asia",
       "manufacturer": "GC Corporation",
-      "notes": "Японский производитель"
+      "notes": "Японский производитель",
+      "year_released": 2010,
+      "price_rub": 2800
     },
     {
       "name": "Clearfil AP-X",
@@ -606,7 +680,9 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Kuraray",
-      "notes": "Японский производитель, популярен в Азии"
+      "notes": "Японский производитель, популярен в Азии",
+      "year_released": 2012,
+      "price_rub": 3300
     },
     {
       "name": "Zhermack Esthetic",
@@ -622,7 +698,9 @@
       "category": "microhybrid",
       "region": "Italy",
       "manufacturer": "Zhermack",
-      "notes": "Итальянский производитель, популярен в Италии"
+      "notes": "Итальянский производитель, популярен в Италии",
+      "year_released": 2016,
+      "price_rub": 2400
     },
     {
       "name": "Micerium Evo",
@@ -638,7 +716,9 @@
       "category": "microhybrid",
       "region": "Italy",
       "manufacturer": "Micerium",
-      "notes": "Итальянский производитель"
+      "notes": "Итальянский производитель",
+      "year_released": 2017,
+      "price_rub": 3600
     },
     {
       "name": "Филтек П60",
@@ -654,7 +734,9 @@
       "category": "microhybrid",
       "region": "Russia",
       "manufacturer": "3M ESPE",
-      "notes": "Популярен в России, высокая прочность для жевательных зубов"
+      "notes": "Популярен в России, высокая прочность для жевательных зубов",
+      "year_released": 2006,
+      "price_rub": 3200
     },
     {
       "name": "Филтек Z250",
@@ -670,7 +752,9 @@
       "category": "microhybrid",
       "region": "Russia",
       "manufacturer": "3M ESPE",
-      "notes": "Популярен в России"
+      "notes": "Популярен в России",
+      "year_released": 2007,
+      "price_rub": 3500
     },
     {
       "name": "Charisma Diamond",
@@ -686,7 +770,9 @@
       "category": "microhybrid",
       "region": "Russia",
       "manufacturer": "Heraeus Kulzer",
-      "notes": "Популярен в России"
+      "notes": "Популярен в России",
+      "year_released": 2013,
+      "price_rub": 3100
     },
     {
       "name": "Septodont Universal",
@@ -702,7 +788,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Septodont",
-      "notes": "Французский производитель, популярен в Европе"
+      "notes": "Французский производитель, популярен в Европе",
+      "year_released": 2015,
+      "price_rub": 2600
     },
     {
       "name": "Septodont Esthetic",
@@ -718,7 +806,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Septodont",
-      "notes": "Французский производитель, высокоэстетичный нанокомпозит"
+      "notes": "Французский производитель, высокоэстетичный нанокомпозит",
+      "year_released": 2015,
+      "price_rub": 2700
     },
     {
       "name": "COLTENE Brilliant",
@@ -734,7 +824,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "COLTENE",
-      "notes": "Швейцарский производитель, популярен в Европе"
+      "notes": "Швейцарский производитель, популярен в Европе",
+      "year_released": 2014,
+      "price_rub": 2800
     },
     {
       "name": "COLTENE Brilliant EverGlow",
@@ -750,7 +842,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "COLTENE",
-      "notes": "Швейцарский производитель, нанокомпозит"
+      "notes": "Швейцарский производитель, нанокомпозит",
+      "year_released": 2016,
+      "price_rub": 3000
     },
     {
       "name": "Bredent Brilliant",
@@ -766,7 +860,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Bredent",
-      "notes": "Немецкий производитель, популярен в Германии и Европе"
+      "notes": "Немецкий производитель, популярен в Германии и Европе",
+      "year_released": 2015,
+      "price_rub": 2900
     },
     {
       "name": "MEGADENTA Universal",
@@ -782,7 +878,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "MEGADENTA",
-      "notes": "Немецкий производитель, популярен в Европе"
+      "notes": "Немецкий производитель, популярен в Европе",
+      "year_released": 2016,
+      "price_rub": 2500
     },
     {
       "name": "Voco GrandioSO Heavy",
@@ -798,7 +896,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Voco",
-      "notes": "Немецкий производитель, высокая прочность для жевательных зубов"
+      "notes": "Немецкий производитель, высокая прочность для жевательных зубов",
+      "year_released": 2014,
+      "price_rub": 3700
     },
     {
       "name": "Voco Solitaire 2",
@@ -814,7 +914,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Voco",
-      "notes": "Немецкий производитель, нанокомпозит"
+      "notes": "Немецкий производитель, нанокомпозит",
+      "year_released": 2015,
+      "price_rub": 3500
     },
     {
       "name": "Ivoclar Tetric EvoFlow",
@@ -830,7 +932,9 @@
       "category": "low_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Швейцарский производитель, flowable композит, требует покрытия"
+      "notes": "Швейцарский производитель, flowable композит, требует покрытия",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "Ivoclar Tetric PowerFill",
@@ -846,7 +950,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Швейцарский производитель, bulk fill композит, очень низкая усадка"
+      "notes": "Швейцарский производитель, bulk fill композит, очень низкая усадка",
+      "year_released": 2018,
+      "price_rub": 4600
     },
     {
       "name": "Ivoclar Tetric EvoCeram Bulk Fill",
@@ -862,7 +968,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Швейцарский производитель, bulk fill композит"
+      "notes": "Швейцарский производитель, bulk fill композит",
+      "year_released": 2014,
+      "price_rub": 3900
     },
     {
       "name": "Heraeus Kulzer Venus",
@@ -878,7 +986,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Heraeus Kulzer",
-      "notes": "Немецкий производитель, популярен в Европе"
+      "notes": "Немецкий производитель, популярен в Европе",
+      "year_released": 2011,
+      "price_rub": 3100
     },
     {
       "name": "Heraeus Kulzer Venus Pearl",
@@ -894,7 +1004,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Heraeus Kulzer",
-      "notes": "Немецкий производитель, нанокомпозит"
+      "notes": "Немецкий производитель, нанокомпозит",
+      "year_released": 2013,
+      "price_rub": 3300
     },
     {
       "name": "Dentsply Sirona Ceram-X",
@@ -910,7 +1022,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Dentsply Sirona",
-      "notes": "Популярен в Европе, универсальный композит"
+      "notes": "Популярен в Европе, универсальный композит",
+      "year_released": 2011,
+      "price_rub": 3100
     },
     {
       "name": "Dentsply Sirona SDR flow+",
@@ -926,7 +1040,9 @@
       "category": "low_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Dentsply Sirona",
-      "notes": "Flowable композит, требует покрытия"
+      "notes": "Flowable композит, требует покрытия",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "Kerr OptiShade",
@@ -942,7 +1058,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Kerr",
-      "notes": "Популярен в Европе"
+      "notes": "Популярен в Европе",
+      "year_released": 2012,
+      "price_rub": 3200
     },
     {
       "name": "Kerr Premise",
@@ -958,7 +1076,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Kerr",
-      "notes": "Нанокомпозит, популярен в Европе"
+      "notes": "Нанокомпозит, популярен в Европе",
+      "year_released": 2011,
+      "price_rub": 3100
     },
     {
       "name": "3M ESPE Filtek One Bulk Fill",
@@ -974,7 +1094,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "3M ESPE",
-      "notes": "Bulk fill композит, популярен в Европе, очень низкая усадка"
+      "notes": "Bulk fill композит, популярен в Европе, очень низкая усадка",
+      "year_released": 2016,
+      "price_rub": 4300
     },
     {
       "name": "3M ESPE Filtek Universal",
@@ -990,7 +1112,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "3M ESPE",
-      "notes": "Универсальный нанокомпозит, популярен в Европе"
+      "notes": "Универсальный нанокомпозит, популярен в Европе",
+      "year_released": 2017,
+      "price_rub": 4500
     },
     {
       "name": "Ultradent Opallis",
@@ -1006,7 +1130,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Ultradent",
-      "notes": "Популярен в Европе"
+      "notes": "Популярен в Европе",
+      "year_released": 2013,
+      "price_rub": 3400
     },
     {
       "name": "Ultradent Valiant",
@@ -1022,7 +1148,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Ultradent",
-      "notes": "Популярен в Европе"
+      "notes": "Популярен в Европе",
+      "year_released": 2014,
+      "price_rub": 3500
     },
     {
       "name": "DMG LuxaCore",
@@ -1038,7 +1166,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "DMG",
-      "notes": "Немецкий производитель, популярен в Европе"
+      "notes": "Немецкий производитель, популярен в Европе",
+      "year_released": 2012,
+      "price_rub": 3200
     },
     {
       "name": "DMG LuxaCore Z",
@@ -1054,7 +1184,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "DMG",
-      "notes": "Немецкий производитель, нанокомпозит"
+      "notes": "Немецкий производитель, нанокомпозит",
+      "year_released": 2014,
+      "price_rub": 3400
     },
     {
       "name": "Schütz Dental Brilliant EverGlow",
@@ -1070,7 +1202,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Schütz Dental",
-      "notes": "Немецкий производитель"
+      "notes": "Немецкий производитель",
+      "year_released": 2016,
+      "price_rub": 3000
     },
     {
       "name": "Schütz Dental Brilliant NG",
@@ -1086,7 +1220,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Schütz Dental",
-      "notes": "Немецкий производитель, нанокомпозит"
+      "notes": "Немецкий производитель, нанокомпозит",
+      "year_released": 2017,
+      "price_rub": 3100
     },
     {
       "name": "Kulzer Venus Bulk Fill",
@@ -1102,7 +1238,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Heraeus Kulzer",
-      "notes": "Немецкий производитель, bulk fill композит"
+      "notes": "Немецкий производитель, bulk fill композит",
+      "year_released": 2014,
+      "price_rub": 3600
     },
     {
       "name": "Kulzer Venus Diamond",
@@ -1118,7 +1256,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Heraeus Kulzer",
-      "notes": "Немецкий производитель, популярен в Европе"
+      "notes": "Немецкий производитель, популярен в Европе",
+      "year_released": 2012,
+      "price_rub": 3200
     },
     {
       "name": "Voco Admira Fusion",
@@ -1134,7 +1274,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Voco",
-      "notes": "Немецкий производитель, Ormocer матрица, очень низкая усадка"
+      "notes": "Немецкий производитель, Ormocer матрица, очень низкая усадка",
+      "year_released": 2016,
+      "price_rub": 3800
     },
     {
       "name": "Voco Admira Fusion Xtra",
@@ -1150,7 +1292,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Voco",
-      "notes": "Немецкий производитель, Ormocer матрица, bulk fill"
+      "notes": "Немецкий производитель, Ormocer матрица, bulk fill",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "Ivoclar Heliomolar",
@@ -1166,7 +1310,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Швейцарский производитель, классический композит"
+      "notes": "Швейцарский производитель, классический композит",
+      "year_released": 2010,
+      "price_rub": 3000
     },
     {
       "name": "Ivoclar Tetric N-Ceram",
@@ -1182,7 +1328,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Швейцарский производитель, нанокомпозит"
+      "notes": "Швейцарский производитель, нанокомпозит",
+      "year_released": 2015,
+      "price_rub": 3700
     },
     {
       "name": "Ivoclar Tetric EvoFlow Bulk Fill",
@@ -1198,7 +1346,9 @@
       "category": "low_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Швейцарский производитель, flowable bulk fill, требует покрытия"
+      "notes": "Швейцарский производитель, flowable bulk fill, требует покрытия",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "Dentsply Sirona Prime&Bond Universal",
@@ -1214,7 +1364,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Dentsply Sirona",
-      "notes": "Популярен в Европе"
+      "notes": "Популярен в Европе",
+      "year_released": 2016,
+      "price_rub": 3600
     },
     {
       "name": "Dentsply Sirona SureFil SDR",
@@ -1230,7 +1382,9 @@
       "category": "low_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Dentsply Sirona",
-      "notes": "Flowable композит, требует покрытия"
+      "notes": "Flowable композит, требует покрытия",
+      "year_released": 2015,
+      "price_rub": 3000
     },
     {
       "name": "Kerr Nexus",
@@ -1246,7 +1400,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Kerr",
-      "notes": "Популярен в Европе"
+      "notes": "Популярен в Европе",
+      "year_released": 2011,
+      "price_rub": 3100
     },
     {
       "name": "Kerr Filtek Supreme",
@@ -1262,7 +1418,9 @@
       "category": "nanocomposite",
       "region": "Europe",
       "manufacturer": "Kerr",
-      "notes": "Нанокомпозит, популярен в Европе"
+      "notes": "Нанокомпозит, популярен в Европе",
+      "year_released": 2012,
+      "price_rub": 3200
     },
     {
       "name": "3M ESPE Filtek P60",
@@ -1278,7 +1436,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "3M ESPE",
-      "notes": "Высокая прочность для жевательных зубов, популярен в Европе"
+      "notes": "Высокая прочность для жевательных зубов, популярен в Европе",
+      "year_released": 2006,
+      "price_rub": 3200
     },
     {
       "name": "3M ESPE Filtek Z250 XT",
@@ -1294,7 +1454,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "3M ESPE",
-      "notes": "Классический композит, популярен в Европе"
+      "notes": "Классический композит, популярен в Европе",
+      "year_released": 2007,
+      "price_rub": 3500
     },
     {
       "name": "Ultradent Opallis Bulk Fill",
@@ -1310,7 +1472,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "Europe",
       "manufacturer": "Ultradent",
-      "notes": "Bulk fill композит, популярен в Европе"
+      "notes": "Bulk fill композит, популярен в Европе",
+      "year_released": 2015,
+      "price_rub": 3500
     },
     {
       "name": "DMG LuxaCore Dual",
@@ -1326,7 +1490,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "DMG",
-      "notes": "Немецкий производитель, dual-cure"
+      "notes": "Немецкий производитель, dual-cure",
+      "year_released": 2015,
+      "price_rub": 3400
     },
     {
       "name": "Schütz Dental Brilliant Universal",
@@ -1342,7 +1508,9 @@
       "category": "microhybrid",
       "region": "Europe",
       "manufacturer": "Schütz Dental",
-      "notes": "Немецкий производитель, универсальный композит"
+      "notes": "Немецкий производитель, универсальный композит",
+      "year_released": 2016,
+      "price_rub": 3000
     },
     {
       "name": "XF Optimal",
@@ -1358,7 +1526,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "3M ESPE",
-      "notes": "Оптимальный композит с наполнителем 45% (в диапазоне 25-50%)"
+      "notes": "Оптимальный композит с наполнителем 45% (в диапазоне 25-50%)",
+      "year_released": 2015,
+      "price_rub": 4500
     },
     {
       "name": "TBF Optimal",
@@ -1374,7 +1544,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "Ivoclar Vivadent",
-      "notes": "Оптимальный композит с наполнителем 40% (в диапазоне 25-50%)"
+      "notes": "Оптимальный композит с наполнителем 40% (в диапазоне 25-50%)",
+      "year_released": 2013,
+      "price_rub": 3800
     },
     {
       "name": "FBP Optimal",
@@ -1390,7 +1562,9 @@
       "category": "high_viscosity_bulk_fill",
       "region": "international",
       "manufacturer": "3M ESPE",
-      "notes": "Оптимальный композит с наполнителем 35% (в диапазоне 25-50%)"
+      "notes": "Оптимальный композит с наполнителем 35% (в диапазоне 25-50%)",
+      "year_released": 2013,
+      "price_rub": 4200
     }
   ],
   "selection_criteria": {
@@ -1434,6 +1608,73 @@
       "mvc_duration_sec_per_min": "4-6",
       "recommended_microhardness_min": 70,
       "recommended_wear_resistance": "very_high"
+    }
+  },
+  "twes2_classification": {
+    "description": "Tooth Wear Evaluation System 2.0 (TWES 2.0) - современная классификация патологической стираемости зубов",
+    "source": "Wetselaar et al. 2020, Journal of Oral Rehabilitation",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7384115/",
+    "grades": {
+      "0": {
+        "name": "Grade 0",
+        "description": "Не наблюдается стирания",
+        "depth": "Нет стирания",
+        "tissues": "Эмаль не затронута",
+        "characteristics": "Отсутствие видимого стирания зубов",
+        "clinical_significance": "Физиологическая норма, симптомов нет",
+        "recommended_microhardness_min": 50,
+        "recommended_wear_resistance": "high",
+        "recommended_filler_min": 60,
+        "notes": "Нормальное состояние, профилактические композиты"
+      },
+      "1": {
+        "name": "Grade 1",
+        "description": "Стирание в пределах эмали",
+        "depth": "В пределах эмали",
+        "tissues": "Эмаль",
+        "characteristics": "Стирание в пределах эмали, сглаживание бугров и режущих краёв, дентин не обнажён",
+        "clinical_significance": "Начальная стадия, часто бессимптомна, функциональная перегрузка",
+        "recommended_microhardness_min": 50,
+        "recommended_wear_resistance": "high",
+        "recommended_filler_min": 60,
+        "notes": "Начальная стадия, композиты с хорошей износостойкостью"
+      },
+      "2": {
+        "name": "Grade 2",
+        "description": "Лёгкая степень - до 1/3 коронки",
+        "depth": "До ≤ 1/3 коронки",
+        "tissues": "Эмаль + дентин",
+        "characteristics": "Стирание эмали, обнажение дентина, потеря высоты коронки до ≤ 1/3",
+        "clinical_significance": "Повышенная чувствительность, изменение высоты бугров, начальное снижение высоты прикуса",
+        "recommended_microhardness_min": 60,
+        "recommended_wear_resistance": "high",
+        "recommended_filler_min": 65,
+        "notes": "Требуются композиты с повышенной прочностью и износостойкостью"
+      },
+      "3": {
+        "name": "Grade 3",
+        "description": "Средняя степень - от 1/3 до 2/3 коронки",
+        "depth": "> 1/3 < 2/3 коронки",
+        "tissues": "Значительный дентин",
+        "characteristics": "Выраженное стирание, утрата эмали и значительной части дентина, потеря высоты коронки > 1/3 < 2/3",
+        "clinical_significance": "Боли, гиперестезия, компенсаторные изменения ВНЧС, отчётливое снижение высоты прикуса",
+        "recommended_microhardness_min": 70,
+        "recommended_wear_resistance": "very_high",
+        "recommended_filler_min": 70,
+        "notes": "Критическая стадия, требуются композиты максимальной прочности"
+      },
+      "4": {
+        "name": "Grade 4",
+        "description": "Тяжёлая степень - более 2/3 коронки",
+        "depth": "≥ 2/3 коронки",
+        "tissues": "Вплоть до пульпы",
+        "characteristics": "Почти полное стирание коронок, потеря высоты коронки ≥ 2/3, возможное вскрытие полости зуба",
+        "clinical_significance": "Выраженная функциональная и эстетическая катастрофа, тяжёлые окклюзионные нарушения, обязательное комплексное ортопедическое лечение",
+        "recommended_microhardness_min": 75,
+        "recommended_wear_resistance": "very_high",
+        "recommended_filler_min": 75,
+        "notes": "Тяжёлая стадия, требуются композиты максимальной прочности, часто требуется ортопедическое лечение"
+      }
     }
   },
   "bushan_classification": {

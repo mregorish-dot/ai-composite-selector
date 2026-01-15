@@ -191,6 +191,43 @@ elif page == "📊 Выбор композита":
         - Выберет оптимальные композиты с обоснованием
         """)
     
+    # Дополнительные фильтры (перед формой)
+    with st.expander("🔧 Дополнительные фильтры", expanded=False):
+        filter_col1, filter_col2, filter_col3, filter_col4 = st.columns(4)
+        
+        with filter_col1:
+            filter_region = st.multiselect(
+                "Страна/Регион производителя",
+                ["Все", "USA", "Russia", "Italy", "Asia", "International"],
+                default=["Все"]
+            )
+        
+        with filter_col2:
+            filter_manufacturer = st.multiselect(
+                "Компания производитель",
+                ["Все", "3M ESPE", "Ivoclar Vivadent", "Dentsply Sirona", "Kulzer", "Voco", "Kerr", "Ultradent", "DMG", "Schütz Dental", "COLTENE", "Septodont", "Heraeus", "Micerium", "Другие"],
+                default=["Все"]
+            )
+        
+        with filter_col3:
+            filter_year_min = st.number_input(
+                "Год выпуска (от)",
+                min_value=1990,
+                max_value=2025,
+                value=2000,
+                help="Минимальный год выпуска композита на рынок"
+            )
+        
+        with filter_col4:
+            filter_price_max = st.number_input(
+                "Макс. цена (руб)",
+                min_value=0,
+                max_value=50000,
+                value=50000,
+                step=500,
+                help="Максимальная цена на российском рынке"
+            )
+    
     # Форма ввода данных
     with st.form("patient_data_form"):
         st.subheader("ЭМГ-данные")
@@ -258,6 +295,34 @@ elif page == "📊 Выбор композита":
             )
         
         st.markdown("---")
+        
+        # Показатели MVC (выводятся из анализа ЭМГ)
+        if masseter_r_max and masseter_l_max and temporalis_r_max and temporalis_l_max:
+            with st.expander("📊 Анализ MVC показателей", expanded=False):
+                # Расчет средних значений
+                avg_masseter_max = (masseter_r_max + masseter_l_max) / 2
+                avg_temporalis_max = (temporalis_r_max + temporalis_l_max) / 2
+                
+                # Референсные значения (контрольная группа Synapsys)
+                ref_masseter_max = 355  # Примерное среднее
+                ref_temporalis_max = 260  # Примерное среднее
+                
+                # Расчет гиперфункции в процентах
+                mvc_hyperfunction_masseter = ((avg_masseter_max - ref_masseter_max) / ref_masseter_max) * 100 if ref_masseter_max > 0 else 0
+                mvc_hyperfunction_temporalis = ((avg_temporalis_max - ref_temporalis_max) / ref_temporalis_max) * 100 if ref_temporalis_max > 0 else 0
+                
+                col_mvc1, col_mvc2 = st.columns(2)
+                with col_mvc1:
+                    st.metric("MVC Жевательная мышца", f"{avg_masseter_max:.1f} мкВ")
+                    st.metric("MVC Гиперфункция (жевательная)", f"{mvc_hyperfunction_masseter:+.1f}%", 
+                             delta="Норма" if -10 <= mvc_hyperfunction_masseter <= 10 else "Отклонение")
+                with col_mvc2:
+                    st.metric("MVC Височная мышца", f"{avg_temporalis_max:.1f} мкВ")
+                    st.metric("MVC Гиперфункция (височная)", f"{mvc_hyperfunction_temporalis:+.1f}%",
+                             delta="Норма" if -10 <= mvc_hyperfunction_temporalis <= 10 else "Отклонение")
+                
+                st.info("💡 Эти показатели рассчитываются автоматически на основе введенных ЭМГ-данных")
+        
         st.subheader("Дополнительная информация")
         
         col3, col4 = st.columns(2)
@@ -273,16 +338,57 @@ elif page == "📊 Выбор композита":
         with col4:
             wear_severity_type = st.radio(
                 "Тип классификации стираемости",
-                ["По Бушану М.Г. (клиническая)", "По ЭМГ-показателям"],
-                help="Классификация по Бушану - наиболее распространённая в клинической практике"
+                ["TWES 2.0 (современная)", "По Бушану М.Г. (классическая)", "По ЭМГ-показателям"],
+                help="TWES 2.0 - современная классификация (2020), Бушан - классическая клиническая"
             )
             
-            if wear_severity_type == "По Бушану М.Г. (клиническая)":
-                wear_severity = st.selectbox(
-                    "Степень патологической стираемости по Бушану",
-                    ["Не указана", "I степень", "II степень", "III степень", "IV степень"],
-                    help="I - в пределах эмали, II - до 1/3 коронки, III - до 2/3 коронки, IV - почти вся коронка"
-                )
+            if wear_severity_type == "TWES 2.0 (современная)":
+                col_wear1, col_wear2 = st.columns([2, 1])
+                with col_wear1:
+                    wear_severity = st.selectbox(
+                        "Степень стираемости (TWES 2.0)",
+                        ["Не указана", "Grade 0", "Grade 1", "Grade 2", "Grade 3", "Grade 4"],
+                        help="Grade 0-4 по TWES 2.0"
+                    )
+                with col_wear2:
+                    if wear_severity != "Не указана":
+                        twes_info = {
+                            "Grade 0": "0 - Не наблюдается",
+                            "Grade 1": "1 - В пределах эмали",
+                            "Grade 2": "2 - Лёгкая (≤1/3)",
+                            "Grade 3": "3 - Средняя (1/3-2/3)",
+                            "Grade 4": "4 - Тяжёлая (≥2/3)"
+                        }
+                        st.caption(f"**{twes_info.get(wear_severity, '')}**")
+                
+                # Конвертация для системы
+                twes_map = {
+                    "Не указана": None,
+                    "Grade 0": "twes_0",
+                    "Grade 1": "twes_1",
+                    "Grade 2": "twes_2",
+                    "Grade 3": "twes_3",
+                    "Grade 4": "twes_4"
+                }
+                wear_severity = twes_map[wear_severity]
+            elif wear_severity_type == "По Бушану М.Г. (классическая)":
+                col_wear1, col_wear2 = st.columns([2, 1])
+                with col_wear1:
+                    wear_severity = st.selectbox(
+                        "Степень патологической стираемости по Бушану",
+                        ["Не указана", "I степень", "II степень", "III степень", "IV степень"],
+                        help="I - в пределах эмали, II - до 1/3 коронки, III - до 2/3 коронки, IV - почти вся коронка"
+                    )
+                with col_wear2:
+                    if wear_severity != "Не указана":
+                        bush_info = {
+                            "I степень": "I - В пределах эмали",
+                            "II степень": "II - До 1/3 коронки",
+                            "III степень": "III - До 2/3 коронки",
+                            "IV степень": "IV - Почти вся коронка"
+                        }
+                        st.caption(f"**{bush_info.get(wear_severity, '')}**")
+                
                 # Конвертация для системы
                 bush_map = {
                     "Не указана": None,
@@ -327,6 +433,10 @@ elif page == "📊 Выбор композита":
         # wear_severity уже обработан выше (может быть bushan_I, bushan_II и т.д. или none, mild и т.д.)
         wear_sev = wear_severity
         
+        # Подготовка фильтров
+        region_filt = None if "Все" in filter_region else filter_region
+        manufacturer_filt = None if "Все" in filter_manufacturer else filter_manufacturer
+        
         patient = PatientData(
             apparatus=apparatus,
             masseter_right_chewing=masseter_r_chew,
@@ -341,7 +451,11 @@ elif page == "📊 Выбор композита":
             occlusion_anomaly_type=occlusion_anomaly if occlusion_anomaly else None,
             wear_severity=wear_sev,
             mvc_hyperfunction_percent=mvc_percent if mvc_percent else None,
-            mvc_duration_sec_per_min=mvc_duration if mvc_duration else None
+            mvc_duration_sec_per_min=mvc_duration if mvc_duration else None,
+            region_filter=region_filt,
+            manufacturer_filter=manufacturer_filt,
+            year_min=filter_year_min if filter_year_min > 1990 else None,
+            price_max=filter_price_max if filter_price_max < 50000 else None
         )
         
         # Поиск композитов с применением правил из статей
@@ -378,26 +492,49 @@ elif page == "📊 Выбор композита":
                         - Альтернативных вариантов (наполнитель >50%): {alternative_count}
                         """)
                     
-                    # Информация о классификации по Бушану
-                    if wear_sev and wear_sev.startswith('bushan_'):
-                        degree = wear_sev.replace('bushan_', '')
-                        bush_data = st.session_state.composite_selector.db.bushan_classification
-                        if bush_data and 'degrees' in bush_data and degree in bush_data['degrees']:
-                            bush_info = bush_data['degrees'][degree]
-                            with st.expander("📚 Информация о классификации по Бушану", expanded=False):
-                                st.markdown(f"""
-                                **{bush_info['name']} патологической стираемости:**
-                                
-                                - **Глубина:** {bush_info['depth']}
-                                - **Ткани:** {bush_info['tissues']}
-                                - **Характеристика:** {bush_info['characteristics']}
-                                - **Клиническое значение:** {bush_info['clinical_significance']}
-                                
-                                **Рекомендации для композита:**
-                                - Микротвердость: ≥{bush_info['recommended_microhardness_min']} KHN
-                                - Износостойкость: {bush_info['recommended_wear_resistance']}
-                                - Наполнитель: ≥{bush_info['recommended_filler_min']}%
-                                """)
+                    # Информация о классификации
+                    if wear_sev:
+                        if wear_sev.startswith('twes_'):
+                            grade = wear_sev.replace('twes_', '')
+                            twes_data = st.session_state.composite_selector.db.twes2_classification
+                            if twes_data and 'grades' in twes_data and grade in twes_data['grades']:
+                                twes_info = twes_data['grades'][grade]
+                                with st.expander("📚 Информация о классификации TWES 2.0", expanded=False):
+                                    st.markdown(f"""
+                                    **{twes_info['name']} - {twes_info['description']}**
+                                    
+                                    - **Глубина:** {twes_info['depth']}
+                                    - **Ткани:** {twes_info['tissues']}
+                                    - **Характеристика:** {twes_info['characteristics']}
+                                    - **Клиническое значение:** {twes_info['clinical_significance']}
+                                    
+                                    **Рекомендации для композита:**
+                                    - Микротвердость: ≥{twes_info['recommended_microhardness_min']} KHN
+                                    - Износостойкость: {twes_info['recommended_wear_resistance']}
+                                    - Наполнитель: ≥{twes_info['recommended_filler_min']}%
+                                    
+                                    *Источник: Wetselaar et al. 2020, Journal of Oral Rehabilitation*
+                                    *[Ссылка на статью]({twes_data.get('url', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7384115/')})*
+                                    """)
+                        elif wear_sev.startswith('bushan_'):
+                            degree = wear_sev.replace('bushan_', '')
+                            bush_data = st.session_state.composite_selector.db.bushan_classification
+                            if bush_data and 'degrees' in bush_data and degree in bush_data['degrees']:
+                                bush_info = bush_data['degrees'][degree]
+                                with st.expander("📚 Информация о классификации по Бушану", expanded=False):
+                                    st.markdown(f"""
+                                    **{bush_info['name']} патологической стираемости:**
+                                    
+                                    - **Глубина:** {bush_info['depth']}
+                                    - **Ткани:** {bush_info['tissues']}
+                                    - **Характеристика:** {bush_info['characteristics']}
+                                    - **Клиническое значение:** {bush_info['clinical_significance']}
+                                    
+                                    **Рекомендации для композита:**
+                                    - Микротвердость: ≥{bush_info['recommended_microhardness_min']} KHN
+                                    - Износостойкость: {bush_info['recommended_wear_resistance']}
+                                    - Наполнитель: ≥{bush_info['recommended_filler_min']}%
+                                    """)
         
         if results:
             st.success(f"✅ Найдено {len(results)} рекомендуемых композита(ов)")
