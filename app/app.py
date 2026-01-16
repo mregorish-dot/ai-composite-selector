@@ -651,6 +651,27 @@ elif page == "📊 Выбор композита":
                     
                     # Используется стандартный интерфейс Streamlit без кастомных стилей
                     
+                    # CSS для убирания троеточий в метриках
+                    st.markdown("""
+                    <style>
+                    /* Убираем троеточия из метрик */
+                    [data-testid="stMetricValue"],
+                    [data-testid="stMetricValue"] *,
+                    [data-testid="stMetricLabel"],
+                    [data-testid="stMetricLabel"] * {
+                        white-space: normal !important;
+                        overflow: visible !important;
+                        text-overflow: clip !important;
+                        word-wrap: break-word !important;
+                        word-break: break-word !important;
+                        max-width: 100% !important;
+                    }
+                    [data-testid="stMetricContainer"] {
+                        overflow: visible !important;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+                    
                     # Все метрики в одном ряду - 5 колонок (микротвердость + 4 остальные)
                     cols = st.columns(5)
                     with cols[0]:
@@ -658,23 +679,23 @@ elif page == "📊 Выбор композита":
                     with cols[1]:
                         st.metric("Усадка", f"{composite['polymerization_shrinkage_percent']:.2f}%")
                     
-                    # Наполнитель с индикацией в метке
+                    # Наполнитель с индикацией в метке - сокращаем для помещается в рамку
                     filler = composite['filler_content_percent']
                     with cols[2]:
                         if 25 <= filler < 50:
-                            st.metric("Наполнитель (оптимально)", f"{filler:.0f}%")
+                            st.metric("Наполнитель (опт.)", f"{filler:.0f}%")
                         elif filler >= 50:
-                            st.metric("Наполнитель (альтернатива)", f"{filler:.0f}%")
+                            st.metric("Наполнитель (альт.)", f"{filler:.0f}%")
                         else:
                             st.metric("Наполнитель", f"{filler:.0f}%")
                     
                     with cols[3]:
-                        # Переводим износостойкость на русский для читаемости
+                        # Переводим износостойкость на русский для читаемости - сокращаем
                         wear_ru = {
                             'low': 'Низкая',
                             'medium': 'Средняя',
                             'high': 'Высокая',
-                            'very_high': 'Очень высокая'
+                            'very_high': 'Оч. высокая'  # Сокращено
                         }
                         wear_display = wear_ru.get(composite['wear_resistance'], composite['wear_resistance'])
                         st.metric("Износостойкость", wear_display)
