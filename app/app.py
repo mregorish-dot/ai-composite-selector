@@ -614,21 +614,34 @@ elif page == "📊 Выбор композита":
                     with col_b:
                         st.metric("Микротвердость", f"{composite['microhardness_KHN']:.1f} KHN")
                     
-                    # Характеристики
+                    # Характеристики - используем более широкие колонки для читаемости
                     cols = st.columns(4)
-                    cols[0].metric("Усадка", f"{composite['polymerization_shrinkage_percent']:.2f}%")
+                    with cols[0]:
+                        st.metric("Усадка", f"{composite['polymerization_shrinkage_percent']:.2f}%")
                     
                     # Наполнитель с цветовой индикацией
                     filler = composite['filler_content_percent']
-                    if 25 <= filler < 50:
-                        cols[1].metric("Наполнитель", f"{filler:.0f}%", delta="✅ Оптимально")
-                    elif filler >= 50:
-                        cols[1].metric("Наполнитель", f"{filler:.0f}%", delta="⚠️ Альтернатива", delta_color="off")
-                    else:
-                        cols[1].metric("Наполнитель", f"{filler:.0f}%")
+                    with cols[1]:
+                        if 25 <= filler < 50:
+                            st.metric("Наполнитель", f"{filler:.0f}%", delta="Оптимально")
+                        elif filler >= 50:
+                            st.metric("Наполнитель", f"{filler:.0f}%", delta="Альтернатива", delta_color="off")
+                        else:
+                            st.metric("Наполнитель", f"{filler:.0f}%")
                     
-                    cols[2].metric("Износостойкость", composite['wear_resistance'])
-                    cols[3].metric("Глубина", f"{composite['depth_of_cure_mm']:.2f} мм")
+                    with cols[2]:
+                        # Переводим износостойкость на русский для читаемости
+                        wear_ru = {
+                            'low': 'Низкая',
+                            'medium': 'Средняя',
+                            'high': 'Высокая',
+                            'very_high': 'Очень высокая'
+                        }
+                        wear_display = wear_ru.get(composite['wear_resistance'], composite['wear_resistance'])
+                        st.metric("Износостойкость", wear_display)
+                    
+                    with cols[3]:
+                        st.metric("Глубина", f"{composite['depth_of_cure_mm']:.2f} мм")
                     
                     # Обоснование
                     st.markdown("**Обоснование выбора:**")

@@ -21,6 +21,64 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Global text settings - prevent ellipsis */
+* {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-overflow: clip;
+}
+
+/* Prevent text truncation everywhere */
+p, div, span, h1, h2, h3, h4, h5, h6, label, button, strong, b, em, i {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+}
+
+/* Streamlit specific elements */
+.stMarkdown, .stMarkdown p, .stMarkdown div {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+}
+
+/* Subheaders and headers */
+h1, h2, h3, h4, h5, h6, [data-testid="stHeader"] {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    max-width: 100% !important;
+}
+
+/* Warning and info boxes */
+.stWarning, .stInfo, .stSuccess, .stError {
+    overflow: visible !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
+}
+
+/* Columns - allow content to expand */
+[data-testid="column"] {
+    min-width: 0 !important;
+    overflow: visible !important;
+}
+
+/* Containers */
+[data-testid="stVerticalBlock"] {
+    overflow: visible !important;
+}
+
+/* Element containers */
+.element-container {
+    overflow: visible !important;
+    min-width: 0 !important;
+}
+
 /* Main container styling */
 .main {
     background: var(--bg-primary);
@@ -225,12 +283,44 @@ button[aria-label] {
     color: white;
 }
 
-/* Metrics with subtle animations */
+/* Metrics with subtle animations - full text visible */
 [data-testid="stMetricValue"] {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--text-primary);
     animation: countUp 0.8s ease-out;
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Metric labels - full text visible */
+[data-testid="stMetricLabel"] {
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    line-height: 1.4 !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Metric containers */
+[data-testid="stMetricContainer"] {
+    overflow: visible !important;
+    min-width: 0 !important;
+}
+
+/* Metric delta (change indicator) */
+[data-testid="stMetricDelta"] {
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    max-width: 100% !important;
 }
 
 @keyframes countUp {
