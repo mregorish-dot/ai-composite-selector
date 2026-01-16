@@ -319,19 +319,20 @@ button[aria-label] {
 [data-testid="stMetricValue"] *,
 .stMetricValue,
 .stMetricValue * {
-    font-size: 2.5rem !important;
+    font-size: 2rem !important;
     font-weight: 700 !important;
     color: var(--text-primary) !important;
     animation: countUp 0.8s ease-out !important;
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
-    max-width: none !important;
+    max-width: 100% !important;
     min-width: fit-content !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
     hyphens: none !important;
     letter-spacing: normal !important;
+    line-height: 1.2 !important;
 }
 
 /* Metric labels - no breaking inside words */
