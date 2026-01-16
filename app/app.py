@@ -179,23 +179,6 @@ if 'articles' not in st.session_state:
 
 if 'knowledge_base' not in st.session_state:
     st.session_state.knowledge_base = st.session_state.knowledge_extractor.get_knowledge_base()
-if 'model_trained' not in st.session_state:
-    # Пытаемся обучить модель автоматически на предзагруженных данных
-    try:
-        if 'clinical_pairs' in st.session_state and len(st.session_state.clinical_pairs) > 0:
-            pairs_with_composites = [p for p in st.session_state.clinical_pairs if p.composite_name]
-            if len(pairs_with_composites) >= 2:
-                from model_trainer import CompositeModelTrainer
-                trainer = CompositeModelTrainer()
-                trainer.train(pairs_with_composites, model_type='random_forest')
-                st.session_state.ml_model = trainer
-                st.session_state.model_trained = True
-            else:
-                st.session_state.model_trained = False
-        else:
-            st.session_state.model_trained = False
-    except Exception:
-        st.session_state.model_trained = False  # Модель будет обучена на данных из статей
 if 'article_rules' not in st.session_state:
     st.session_state.article_rules = get_extraction_rules()
 if 'ml_model' not in st.session_state:
@@ -213,6 +196,35 @@ if 'clinical_pairs' not in st.session_state:
         st.session_state.clinical_pairs = preloaded_pairs
     except (ImportError, Exception) as e:
         st.session_state.clinical_pairs = []  # Пары ЭМГ -> композит
+
+# АВТОМАТИЧЕСКОЕ ОБУЧЕНИЕ МОДЕЛИ ПРИ ЗАПУСКЕ
+if 'model_trained' not in st.session_state or not st.session_state.model_trained:
+    # Автоматически обучаем модель на предзагруженных данных
+    try:
+        if 'clinical_pairs' in st.session_state and len(st.session_state.clinical_pairs) > 0:
+            pairs_with_composites = [p for p in st.session_state.clinical_pairs if p.composite_name]
+            if len(pairs_with_composites) >= 2:
+                from model_trainer import CompositeModelTrainer
+                trainer = CompositeModelTrainer()
+                results = trainer.train(pairs_with_composites, model_type='random_forest')
+                st.session_state.ml_model = trainer
+                st.session_state.model_trained = True
+                # Логируем успешное обучение (не отображаем в UI при автоматическом обучении)
+                print(f"✅ Модель автоматически обучена при запуске приложения")
+                print(f"   Точность: {results.get('accuracy', 'N/A')}")
+                print(f"   Примеров для обучения: {results.get('train_size', 'N/A')}")
+                print(f"   Уникальных композитов: {results.get('unique_composites', 'N/A')}")
+            else:
+                st.session_state.model_trained = False
+                print(f"⚠️ Недостаточно пар с композитами для обучения: {len(pairs_with_composites)} (нужно минимум 2)")
+        else:
+            st.session_state.model_trained = False
+            print("⚠️ Нет клинических пар для автоматического обучения модели")
+    except Exception as e:
+        st.session_state.model_trained = False
+        print(f"❌ Ошибка при автоматическом обучении модели: {e}")
+        import traceback
+        traceback.print_exc()
 
 # Боковое меню
 st.sidebar.title("📋 Меню")
