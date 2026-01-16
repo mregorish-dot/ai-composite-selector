@@ -678,13 +678,13 @@ elif page == "📊 Выбор композита":
                     # ИДЕАЛЬНОЕ выравнивание - текст помещается в рамки, все ровно
                     st.markdown("""
                     <style>
-                    /* ФИКСИРОВАННАЯ высота для всех метрик - идеально ровно */
+                    /* ФИКСИРОВАННАЯ высота для всех метрик - увеличенная для длинного текста */
                     [data-testid="stMetricContainer"],
                     [data-testid="stMetricContainer"] > div,
                     [data-testid="stMetricContainer"] > div > div {
-                        height: 130px !important;
-                        min-height: 130px !important;
-                        max-height: 130px !important;
+                        height: 150px !important;
+                        min-height: 150px !important;
+                        max-height: 150px !important;
                         display: flex !important;
                         flex-direction: column !important;
                         justify-content: center !important;
@@ -695,7 +695,7 @@ elif page == "📊 Выбор композита":
                         border-radius: 12px !important;
                         background: #FFFFFF !important;
                         box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-                        overflow: hidden !important;
+                        overflow: visible !important; /* Изменено для показа всего текста */
                     }
                     
                     /* Колонки с метриками - одинаковый размер */
@@ -722,25 +722,25 @@ elif page == "📊 Выбор композита":
                         text-overflow: ellipsis !important;
                     }
                     
-                    /* Значения метрик - УМЕНЬШЕННЫЙ шрифт, помещается в рамку */
+                    /* Значения метрик - разрешен перенос для длинного текста */
                     [data-testid="stMetricValue"],
                     [data-testid="stMetricValue"] * {
-                        white-space: nowrap !important;
-                        word-break: keep-all !important;
-                        overflow-wrap: normal !important;
-                        hyphens: none !important;
+                        white-space: normal !important; /* Изменено для переноса */
+                        word-break: break-word !important; /* Перенос слов */
+                        overflow-wrap: break-word !important;
+                        hyphens: auto !important;
                         letter-spacing: normal !important;
                         text-align: center !important;
                         width: 100% !important;
                         max-width: 100% !important;
-                        font-size: 1.5rem !important;
-                        line-height: 1.2 !important;
+                        font-size: 1.2rem !important; /* Уменьшен шрифт */
+                        line-height: 1.3 !important;
                         font-weight: 700 !important;
                         color: #1F2937 !important;
                         margin: 0 !important;
-                        padding: 0 !important;
-                        overflow: hidden !important;
-                        text-overflow: ellipsis !important;
+                        padding: 0 0.25rem !important; /* Небольшие отступы */
+                        overflow: visible !important; /* Показываем весь текст */
+                        text-overflow: clip !important; /* Без многоточия */
                     }
                     
                     /* Дельта метрик */
@@ -789,7 +789,7 @@ elif page == "📊 Выбор композита":
                             'low': 'Низкая',
                             'medium': 'Средняя',
                             'high': 'Высокая',
-                            'very_high': 'Очень высокая'
+                            'very_high': 'Оч. высокая'  # Сокращено для помещается в рамку
                         }
                         wear_display = wear_ru.get(composite['wear_resistance'], composite['wear_resistance'])
                         st.metric("Износостойкость", wear_display)
