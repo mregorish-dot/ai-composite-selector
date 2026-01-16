@@ -354,7 +354,7 @@ button[aria-label] {
 [data-testid="stMetricContainer"] > div,
 [data-testid="stMetricContainer"] > div > div {
     overflow: visible !important;
-    min-width: fit-content !important;
+    min-width: 200px !important;
     width: auto !important;
     max-width: none !important;
     display: inline-block !important;
@@ -603,5 +603,35 @@ html {
 ::selection {
     background: var(--primary-color);
     color: white;
+}
+
+
+/* ==========================================
+   ДОПОЛНИТЕЛЬНЫЕ СТРОГИЕ ПРАВИЛА ДЛЯ МЕТРИК
+   ========================================== */
+
+/* Колонки с метриками - увеличенная ширина */
+[data-testid="column"] {
+    min-width: 220px !important;
+    overflow: visible !important;
+}
+
+[data-testid="column"]:has([data-testid="stMetricContainer"]) {
+    min-width: 250px !important;
+}
+
+/* Дополнительная защита от переноса */
+[data-testid="stMetricValue"]::before,
+[data-testid="stMetricValue"]::after {
+    content: none !important;
+}
+
+/* Принудительное предотвращение переноса для всех значений */
+div[data-testid="stMetricValue"],
+span[data-testid="stMetricValue"] {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    display: inline-block !important;
 }
 
