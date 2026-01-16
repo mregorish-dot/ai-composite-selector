@@ -57,9 +57,89 @@ def load_custom_css():
     if css_path.exists():
         with open(css_path, 'r', encoding='utf-8') as f:
             st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    
+    # Дополнительные строгие CSS правила для предотвращения переноса букв
+    st.markdown("""
+    <style>
+    /* СТРОГОЕ предотвращение переноса букв в метриках */
+    [data-testid="stMetricValue"],
+    [data-testid="stMetricValue"] * {
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        overflow-wrap: normal !important;
+        hyphens: none !important;
+        letter-spacing: normal !important;
+        min-width: fit-content !important;
+        max-width: none !important;
+        display: inline-block !important;
+        word-spacing: normal !important;
+    }
+    
+    /* Увеличиваем ширину колонок с метриками */
+    [data-testid="column"] {
+        min-width: 220px !important;
+    }
+    
+    /* Контейнеры метрик - больше места */
+    [data-testid="stMetricContainer"] {
+        min-width: 200px !important;
+        width: auto !important;
+    }
+    
+    /* Предотвращение переноса для всех элементов в метриках */
+    [data-testid="stMetricContainer"] * {
+        word-break: keep-all !important;
+        hyphens: none !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 # Применение кастомного CSS
 load_custom_css()
+
+# Дополнительные строгие CSS правила для предотвращения переноса букв
+st.markdown("""
+<style>
+/* СТРОГОЕ предотвращение переноса букв - применяется глобально */
+[data-testid="stMetricValue"],
+[data-testid="stMetricValue"] *,
+[data-testid="stMetricContainer"] [data-testid="stMetricValue"],
+[data-testid="stMetricContainer"] [data-testid="stMetricValue"] * {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    letter-spacing: normal !important;
+    min-width: fit-content !important;
+    max-width: none !important;
+    display: inline-block !important;
+}
+
+/* Для метрики "Модель" особенно строго */
+[data-testid="column"]:has([data-testid="stMetricContainer"]) [data-testid="stMetricValue"] {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow: visible !important;
+    min-width: 200px !important;
+    width: auto !important;
+}
+
+/* Увеличиваем ширину колонок с метриками */
+[data-testid="column"] {
+    min-width: 200px !important;
+}
+
+/* Предотвращение переноса для всех текстовых элементов в метриках */
+[data-testid="stMetricContainer"] * {
+    word-break: keep-all !important;
+    hyphens: none !important;
+}
+
+[data-testid="stMetricValue"] {
+    word-spacing: normal !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # Заголовок
 st.title("🦷 ИИ-система выбора композита для реставрации жевательных зубов")
@@ -199,13 +279,8 @@ if page == "🏠 Главная":
     
     with col3:
         status = "✅ Обучена" if st.session_state.model_trained else "⏳ Не обучена"
-        # Используем markdown для предотвращения переноса букв
-        st.markdown(f"""
-        <div style="white-space: nowrap; word-break: keep-all; overflow: visible;">
-            <div style="font-size: 0.875rem; color: rgb(128, 128, 128); margin-bottom: 0.5rem;">Модель</div>
-            <div style="font-size: 2.5rem; font-weight: 700; color: rgb(49, 51, 63); white-space: nowrap; word-break: keep-all;">{status}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Используем обычную метрику, но с дополнительными стилями через CSS
+        st.metric("Модель", status)
     
     # Показываем примененные правила
     if st.session_state.article_rules:

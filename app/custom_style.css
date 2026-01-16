@@ -88,10 +88,15 @@ h1, h2, h3, h4, h5, h6, [data-testid="stHeader"] {
     white-space: normal !important;
 }
 
-/* Columns - allow content to expand */
+/* Columns - allow content to expand, prevent word breaking */
 [data-testid="column"] {
-    min-width: 0 !important;
+    min-width: 220px !important;
     overflow: visible !important;
+}
+
+/* Columns with metrics - extra width */
+[data-testid="column"]:has([data-testid="stMetricContainer"]) {
+    min-width: 250px !important;
 }
 
 /* Containers */
