@@ -667,6 +667,18 @@ elif page == "📊 Выбор композита":
                             st.warning(f"⚠️ Альтернативный вариант: наполнитель {justification.get('filler_content', 0):.0f}% (оптимально 25-50% по статье 2)")
                     
                     with col_b:
+                        # Добавляем специальные стили для выравнивания карточки микротвердости
+                        st.markdown("""
+                        <style>
+                        /* Выравнивание карточки микротвердости с остальными метриками */
+                        [data-testid="stMetricContainer"] {
+                            min-height: 120px !important;
+                            display: flex !important;
+                            flex-direction: column !important;
+                            justify-content: center !important;
+                        }
+                        </style>
+                        """, unsafe_allow_html=True)
                         st.metric("Микротвердость", f"{composite['microhardness_KHN']:.1f} KHN")
                     
                     # Характеристики - используем более широкие колонки для читаемости
@@ -700,6 +712,21 @@ elif page == "📊 Выбор композита":
                     [data-testid="stMetricContainer"] * {
                         word-break: keep-all !important;
                         hyphens: none !important;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+                    
+                    # Убеждаемся, что все метрики имеют одинаковую высоту
+                    st.markdown("""
+                    <style>
+                    /* Все метрики должны иметь одинаковую высоту */
+                    [data-testid="stMetricContainer"] {
+                        min-height: 120px !important;
+                        height: auto !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        justify-content: center !important;
+                        align-items: stretch !important;
                     }
                     </style>
                     """, unsafe_allow_html=True)
