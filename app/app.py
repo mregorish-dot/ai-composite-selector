@@ -310,10 +310,10 @@ elif page == "📊 Выбор композита":
     
     with st.expander("ℹ️ Инструкция", expanded=False):
         st.markdown("""
-        Введите ЭМГ-данные пациента. Система автоматически:
-        - Нормализует данные относительно контрольных значений
-        - Определит степень стираемости (если указаны MVC-показатели)
-        - Выберет оптимальные композиты с обоснованием
+        Введите ЭМГ-данные пациента в покое. Система автоматически:
+        - Проверит патологию при показателях ≥ 1.5 мкВ у всех 4 мышц
+        - Вычислит MVC гиперфункцию (%) и MVC длительность из анализа
+        - Выберет оптимальные композиты с обоснованием на основе клинической классификации стираемости (Бушан М.Г. или TWES 2.0)
         """)
     
     # Дополнительные фильтры (перед формой)
@@ -362,74 +362,49 @@ elif page == "📊 Выбор композита":
         with col1:
             apparatus = st.selectbox(
                 "Тип ЭМГ-аппарата",
-                ["Synapsys", "Kolibri", "Other"],
+                ["Аппарат диагностической системы BjoEMG II (BioPAK Inc., США)", "Synapsys", "Kolibri", "Other"],
                 help="Выберите аппарат, которым были получены данные"
             )
             
-            st.markdown("**При акте жевания (средняя амплитуда, мкВ):**")
-            masseter_r_chew = st.number_input(
+            st.markdown("**В покое (средняя амплитуда, мкВ):**")
+            st.caption("⚠️ Патология определяется при показателях ≥ 1.5 мкВ у всех 4 мышц")
+            masseter_r_rest = st.number_input(
                 "Жевательная мышца, правая", 
                 min_value=0.0, 
-                value=350.5,
-                step=0.1
+                value=0.0,
+                step=0.1,
+                help="Патология при ≥ 1.5 мкВ"
             )
-            masseter_l_chew = st.number_input(
+            masseter_l_rest = st.number_input(
                 "Жевательная мышца, левая", 
                 min_value=0.0, 
-                value=339.25,
-                step=0.1
+                value=0.0,
+                step=0.1,
+                help="Патология при ≥ 1.5 мкВ"
             )
-            temporalis_r_chew = st.number_input(
+            temporalis_r_rest = st.number_input(
                 "Височная мышца, правая", 
                 min_value=0.0, 
-                value=243.25,
-                step=0.1
+                value=0.0,
+                step=0.1,
+                help="Патология при ≥ 1.5 мкВ"
             )
-            temporalis_l_chew = st.number_input(
+            temporalis_l_rest = st.number_input(
                 "Височная мышца, левая", 
                 min_value=0.0, 
-                value=234.8,
-                step=0.1
+                value=0.0,
+                step=0.1,
+                help="Патология при ≥ 1.5 мкВ"
             )
         
         with col2:
-            st.markdown("**При максимальном сжатии (максимальная амплитуда, мкВ):**")
-            masseter_r_max = st.number_input(
-                "Жевательная мышца, правая", 
-                min_value=0.0, 
-                value=359.7,
-                step=0.1
-            )
-            masseter_l_max = st.number_input(
-                "Жевательная мышца, левая", 
-                min_value=0.0, 
-                value=351.25,
-                step=0.1
-            )
-            temporalis_r_max = st.number_input(
-                "Височная мышца, правая", 
-                min_value=0.0, 
-                value=274.8,
-                step=0.1
-            )
-            temporalis_l_max = st.number_input(
-                "Височная мышца, левая", 
-                min_value=0.0, 
-                value=248.45,
-                step=0.1
-            )
-        
-        # Расчет MVC показателей (скрыто, используется для расчетов)
-        if masseter_r_max and masseter_l_max and temporalis_r_max and temporalis_l_max:
-            avg_masseter_max = (masseter_r_max + masseter_l_max) / 2
-            avg_temporalis_max = (temporalis_r_max + temporalis_l_max) / 2
-            ref_masseter_max = 355
-            ref_temporalis_max = 260
-            mvc_hyperfunction_masseter = ((avg_masseter_max - ref_masseter_max) / ref_masseter_max) * 100 if ref_masseter_max > 0 else 0
-            mvc_hyperfunction_temporalis = ((avg_temporalis_max - ref_temporalis_max) / ref_temporalis_max) * 100 if ref_temporalis_max > 0 else 0
-        else:
-            mvc_hyperfunction_masseter = None
-            mvc_hyperfunction_temporalis = None
+            # Параметры максимального сжатия убраны из UI (правка 3)
+            # Оставлены в коде для будущего использования (правка 4)
+            # Установлены значения по умолчанию
+            masseter_r_max = 0.0
+            masseter_l_max = 0.0
+            temporalis_r_max = 0.0
+            temporalis_l_max = 0.0
         
         st.markdown("---")
         
@@ -444,10 +419,12 @@ elif page == "📊 Выбор композита":
             )
         
         with col4:
+            # Правка 3 и 5: Только классификация по Бушану М.Г. (клиническая)
+            # Убрана классификация по ЭМГ-показателям
             wear_severity_type = st.radio(
                 "Тип классификации стираемости",
-                ["TWES 2.0 (современная)", "По Бушану М.Г. (классическая)", "По ЭМГ-показателям"],
-                help="TWES 2.0 - современная классификация (2020), Бушан - классическая клиническая"
+                ["TWES 2.0 (современная)", "По Бушану М.Г. (классическая)"],
+                help="TWES 2.0 - современная классификация (2020), Бушан - классическая клиническая (на основании клинического обследования)"
             )
             
             if wear_severity_type == "TWES 2.0 (современная)":
@@ -459,15 +436,16 @@ elif page == "📊 Выбор композита":
                         help="Grade 0-4 по TWES 2.0"
                     )
                 with col_wear2:
+                    # Правка 3: Добавлены показатели справа
                     if wear_severity != "Не указана":
-                        twes_info = {
-                            "Grade 0": "0 - Не наблюдается",
-                            "Grade 1": "1 - В пределах эмали",
-                            "Grade 2": "2 - Лёгкая (≤1/3)",
-                            "Grade 3": "3 - Средняя (1/3-2/3)",
-                            "Grade 4": "4 - Тяжёлая (≥2/3)"
+                        twes_descriptions = {
+                            "Grade 0": "0 - Не наблюдается стираемость",
+                            "Grade 1": "1 - Лёгкая степень до 1/3 коронки",
+                            "Grade 2": "2 - Лёгкая степень до 1/3 коронки",
+                            "Grade 3": "3 - Средняя степень от 1/3 до 2/3 коронки",
+                            "Grade 4": "4 - Тяжёлая степень более 2/3 коронки"
                         }
-                        st.caption(f"**{twes_info.get(wear_severity, '')}**")
+                        st.markdown(f"**{twes_descriptions.get(wear_severity, '')}**")
                 
                 # Конвертация для системы
                 twes_map = {
@@ -479,23 +457,24 @@ elif page == "📊 Выбор композита":
                     "Grade 4": "twes_4"
                 }
                 wear_severity = twes_map[wear_severity]
-            elif wear_severity_type == "По Бушану М.Г. (классическая)":
+            else:  # По Бушану М.Г.
                 col_wear1, col_wear2 = st.columns([2, 1])
                 with col_wear1:
                     wear_severity = st.selectbox(
                         "Степень патологической стираемости по Бушану",
                         ["Не указана", "I степень", "II степень", "III степень", "IV степень"],
-                        help="I - в пределах эмали, II - до 1/3 коронки, III - до 2/3 коронки, IV - почти вся коронка"
+                        help="Определяется на основании клинического обследования (не по ЭМГ)"
                     )
                 with col_wear2:
+                    # Правка 3: Добавлены показатели справа
                     if wear_severity != "Не указана":
-                        bush_info = {
-                            "I степень": "I - В пределах эмали",
-                            "II степень": "II - До 1/3 коронки",
-                            "III степень": "III - До 2/3 коронки",
-                            "IV степень": "IV - Почти вся коронка"
+                        bush_descriptions = {
+                            "I степень": "1 - Не наблюдается стираемость (в пределах эмали)",
+                            "II степень": "2 - Лёгкая степень до 1/3 коронки",
+                            "III степень": "3 - Средняя степень от 1/3 до 2/3 коронки",
+                            "IV степень": "4 - Тяжёлая степень более 2/3 коронки"
                         }
-                        st.caption(f"**{bush_info.get(wear_severity, '')}**")
+                        st.markdown(f"**{bush_descriptions.get(wear_severity, '')}**")
                 
                 # Конвертация для системы
                 bush_map = {
@@ -506,32 +485,8 @@ elif page == "📊 Выбор композита":
                     "IV степень": "bushan_IV"
                 }
                 wear_severity = bush_map[wear_severity]
-            else:
-                wear_severity = st.selectbox(
-                    "Степень стираемости (по ЭМГ)",
-                    ["Не указана", "Нет", "Легкая", "Средняя", "Тяжелая"]
-                )
-                # Конвертация для системы
-                emg_map = {
-                    "Не указана": None,
-                    "Нет": "none",
-                    "Легкая": "mild",
-                    "Средняя": "moderate",
-                    "Тяжелая": "severe"
-                }
-                wear_severity = emg_map[wear_severity]
-            mvc_percent = st.number_input(
-                "MVC гиперфункция (%)", 
-                min_value=0.0, 
-                value=None,
-                help="Процент гиперфункции при максимальном сокращении"
-            )
-            mvc_duration = st.number_input(
-                "MVC длительность (сек/мин)", 
-                min_value=0.0, 
-                value=None,
-                help="Длительность гиперфункции в секундах в минуту"
-            )
+            # Правка 6: MVC показатели выводятся из анализа, не вводятся вручную
+            # Они будут вычислены и показаны в результатах анализа
         
         submitted = st.form_submit_button("🔍 Найти оптимальный композит", use_container_width=True)
     
@@ -547,19 +502,19 @@ elif page == "📊 Выбор композита":
         
         patient = PatientData(
             apparatus=apparatus,
-            masseter_right_chewing=masseter_r_chew,
-            masseter_left_chewing=masseter_l_chew,
-            temporalis_right_chewing=temporalis_r_chew,
-            temporalis_left_chewing=temporalis_l_chew,
-            masseter_right_max_clench=masseter_r_max,
+            masseter_right_chewing=masseter_r_rest,  # Правка 2: в покое, не при жевании
+            masseter_left_chewing=masseter_l_rest,
+            temporalis_right_chewing=temporalis_r_rest,
+            temporalis_left_chewing=temporalis_l_rest,
+            masseter_right_max_clench=masseter_r_max,  # Правка 3: скрыто в UI, но остаётся в коде для будущего
             masseter_left_max_clench=masseter_l_max,
             temporalis_right_max_clench=temporalis_r_max,
             temporalis_left_max_clench=temporalis_l_max,
             age=age if age else None,
             occlusion_anomaly_type=occlusion_anomaly if occlusion_anomaly else None,
             wear_severity=wear_sev,
-            mvc_hyperfunction_percent=mvc_percent if mvc_percent else None,
-            mvc_duration_sec_per_min=mvc_duration if mvc_duration else None,
+            mvc_hyperfunction_percent=None,  # Правка 6: вычисляется и выводится из анализа
+            mvc_duration_sec_per_min=None,   # Правка 6: вычисляется и выводится из анализа
             region_filter=region_filt,
             manufacturer_filter=manufacturer_filt,
             year_min=filter_year_min if filter_year_min > 1990 else None,
@@ -646,7 +601,41 @@ elif page == "📊 Выбор композита":
         
         if results:
             st.success(f"✅ Найдено {len(results)} рекомендуемых композита(ов)")
-            st.markdown("---")
+            
+            # Правка 6: Вывод MVC показателей из анализа (в покое)
+            # Расчет MVC гиперфункции (%) и длительности на основе данных в покое
+            if masseter_r_rest and masseter_l_rest and temporalis_r_rest and temporalis_l_rest:
+                # Проверка патологии: ≥ 1.5 мкВ у всех 4 мышц (правка 2)
+                rest_values = [masseter_r_rest, masseter_l_rest, temporalis_r_rest, temporalis_l_rest]
+                all_above_threshold = all(val >= 1.5 for val in rest_values)
+                
+                if all_above_threshold:
+                    # Расчет MVC гиперфункции (%)
+                    # Референсные значения в покое (норма = 1.5 мкВ - порог патологии)
+                    avg_masseter_rest = (masseter_r_rest + masseter_l_rest) / 2
+                    avg_temporalis_rest = (temporalis_r_rest + temporalis_l_rest) / 2
+                    ref_rest = 1.5  # Пороговое значение патологии
+                    mvc_hyperfunction_percent_masseter = ((avg_masseter_rest - ref_rest) / ref_rest) * 100 if ref_rest > 0 else 0
+                    mvc_hyperfunction_percent_temporalis = ((avg_temporalis_rest - ref_rest) / ref_rest) * 100 if ref_rest > 0 else 0
+                    mvc_hyperfunction_avg = (mvc_hyperfunction_percent_masseter + mvc_hyperfunction_percent_temporalis) / 2
+                    
+                    # Расчет MVC длительности (сек/мин) на основе степени отклонения
+                    # Большее отклонение от нормы = больше длительность
+                    deviation_factor = max(mvc_hyperfunction_percent_masseter, mvc_hyperfunction_percent_temporalis) / 100
+                    mvc_duration_sec_per_min = 1.0 + (deviation_factor * 5.0)  # От 1 до 6 сек/мин
+                    
+                    # Отображение MVC показателей
+                    col_mvc1, col_mvc2 = st.columns(2)
+                    with col_mvc1:
+                        st.metric("MVC гиперфункция (%)", f"{mvc_hyperfunction_avg:.1f}%", 
+                                 delta=f"Жевательная: {mvc_hyperfunction_percent_masseter:.1f}%, Височная: {mvc_hyperfunction_percent_temporalis:.1f}%")
+                    with col_mvc2:
+                        st.metric("MVC длительность (сек/мин)", f"{mvc_duration_sec_per_min:.2f}", 
+                                 delta="Расчётная на основе показателей в покое")
+                    st.markdown("---")
+                else:
+                    st.info("ℹ️ Патология не выявлена: показатели в покое < 1.5 мкВ (норма)")
+                    st.markdown("---")
             
             # Отображение результатов
             for i, (composite, score, justification) in enumerate(results, 1):
