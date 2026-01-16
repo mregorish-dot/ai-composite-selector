@@ -21,21 +21,31 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Global text settings - prevent ellipsis */
+/* Global text settings - prevent ellipsis, prevent word breaking */
 * {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
     text-overflow: clip;
+    hyphens: none !important;
 }
 
-/* Prevent text truncation everywhere */
+/* Prevent text truncation everywhere, but allow normal word wrapping */
 p, div, span, h1, h2, h3, h4, h5, h6, label, button, strong, b, em, i {
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: normal !important;
-    word-wrap: break-word !important;
+    word-break: keep-all !important;
     overflow-wrap: break-word !important;
+    hyphens: none !important;
     max-width: 100% !important;
+}
+
+/* Prevent breaking inside words for values and numbers */
+[data-testid="stMetricValue"],
+.stMetricValue,
+.metric-value {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
 }
 
 /* Streamlit specific elements */

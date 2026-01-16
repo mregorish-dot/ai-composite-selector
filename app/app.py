@@ -615,6 +615,26 @@ elif page == "📊 Выбор композита":
                         st.metric("Микротвердость", f"{composite['microhardness_KHN']:.1f} KHN")
                     
                     # Характеристики - используем более широкие колонки для читаемости
+                    # Добавляем стили для предотвращения переноса букв внутри слов
+                    st.markdown("""
+                    <style>
+                    /* Предотвращение переноса букв внутри слов в метриках */
+                    [data-testid="stMetricValue"] {
+                        white-space: nowrap !important;
+                        word-break: keep-all !important;
+                        overflow-wrap: normal !important;
+                    }
+                    [data-testid="stMetricDelta"] {
+                        white-space: nowrap !important;
+                        word-break: keep-all !important;
+                    }
+                    /* Увеличиваем минимальную ширину колонок */
+                    [data-testid="column"]:has([data-testid="stMetricContainer"]) {
+                        min-width: 150px !important;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+                    
                     cols = st.columns(4)
                     with cols[0]:
                         st.metric("Усадка", f"{composite['polymerization_shrinkage_percent']:.2f}%")
