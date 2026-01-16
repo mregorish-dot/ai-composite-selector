@@ -350,21 +350,56 @@ button[aria-label] {
     hyphens: none !important;
 }
 
-/* Metric containers - ensure enough width and equal height */
+/* Metric containers - Apple-level precision: FIXED height for perfect alignment */
 [data-testid="stMetricContainer"],
 [data-testid="stMetricContainer"] > div,
 [data-testid="stMetricContainer"] > div > div {
     overflow: visible !important;
     min-width: 200px !important;
-    min-height: 120px !important;
-    height: auto !important;
-    width: auto !important;
-    max-width: none !important;
+    height: 140px !important;
+    min-height: 140px !important;
+    max-height: 140px !important;
+    width: 100% !important;
+    max-width: 100% !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
-    align-items: stretch !important;
+    align-items: center !important;
     box-sizing: border-box !important;
+    padding: 1rem !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+/* Columns with metrics - perfect alignment */
+[data-testid="column"]:has([data-testid="stMetricContainer"]) {
+    display: flex !important;
+    align-items: stretch !important;
+    padding: 0.5rem !important;
+}
+
+/* Metric labels - centered alignment */
+[data-testid="stMetricLabel"],
+[data-testid="stMetricLabel"] * {
+    text-align: center !important;
+    width: 100% !important;
+    margin: 0 0 0.5rem 0 !important;
+    font-size: 0.875rem !important;
+    color: #6B7280 !important;
+    word-break: keep-all !important;
+    hyphens: none !important;
+    white-space: normal !important;
+}
+
+/* Metric values - perfect alignment */
+[data-testid="stMetricValue"],
+[data-testid="stMetricValue"] * {
+    text-align: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Metric delta (change indicator) - no breaking inside words */
