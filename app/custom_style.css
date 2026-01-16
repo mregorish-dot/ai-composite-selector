@@ -27,7 +27,7 @@
     hyphens: none !important;
 }
 
-/* Prevent text truncation everywhere, but allow normal word wrapping */
+/* Prevent text truncation everywhere, prevent word breaking inside words */
 p, div, span, h1, h2, h3, h4, h5, h6, label, button, strong, b, em, i {
     overflow: visible !important;
     text-overflow: clip !important;
@@ -36,16 +36,32 @@ p, div, span, h1, h2, h3, h4, h5, h6, label, button, strong, b, em, i {
     overflow-wrap: break-word !important;
     hyphens: none !important;
     max-width: 100% !important;
+    letter-spacing: normal !important;
 }
 
-/* Prevent breaking inside words for values and numbers */
+/* Prevent breaking inside words for ALL values and numbers - STRICT */
 [data-testid="stMetricValue"],
 .stMetricValue,
-.metric-value {
+.metric-value,
+[class*="metric"],
+[class*="Metric"] {
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
     hyphens: none !important;
+    letter-spacing: normal !important;
+    min-width: fit-content !important;
+    max-width: none !important;
+}
+
+/* Force no word breaking for Russian words */
+[lang="ru"], 
+[lang="ru"] *,
+:lang(ru),
+:lang(ru) * {
+    word-break: keep-all !important;
+    hyphens: none !important;
+    overflow-wrap: break-word !important;
 }
 
 /* Streamlit specific elements */
@@ -293,57 +309,66 @@ button[aria-label] {
     color: white;
 }
 
-/* Metrics with subtle animations - full text visible, no word breaking */
-[data-testid="stMetricValue"] {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    animation: countUp 0.8s ease-out;
+/* Metrics with subtle animations - full text visible, NO word breaking at all */
+[data-testid="stMetricValue"],
+[data-testid="stMetricValue"] *,
+.stMetricValue,
+.stMetricValue * {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    animation: countUp 0.8s ease-out !important;
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
+    max-width: none !important;
+    min-width: fit-content !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
     hyphens: none !important;
+    letter-spacing: normal !important;
 }
 
 /* Metric labels - no breaking inside words */
-[data-testid="stMetricLabel"] {
+[data-testid="stMetricLabel"],
+[data-testid="stMetricLabel"] *,
+.stMetricLabel {
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: normal !important;
     line-height: 1.4 !important;
     max-width: 100% !important;
-    min-width: 0 !important;
+    min-width: fit-content !important;
     word-break: keep-all !important;
     overflow-wrap: break-word !important;
     hyphens: none !important;
 }
 
-/* Metric containers */
-[data-testid="stMetricContainer"] {
+/* Metric containers - ensure enough width */
+[data-testid="stMetricContainer"],
+[data-testid="stMetricContainer"] > div,
+[data-testid="stMetricContainer"] > div > div {
     overflow: visible !important;
-    min-width: 150px !important;
+    min-width: fit-content !important;
     width: auto !important;
+    max-width: none !important;
+    display: inline-block !important;
 }
 
 /* Metric delta (change indicator) - no breaking inside words */
-[data-testid="stMetricDelta"] {
+[data-testid="stMetricDelta"],
+[data-testid="stMetricDelta"] *,
+.stMetricDelta,
+.stMetricDelta * {
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
-    max-width: 100% !important;
+    max-width: none !important;
+    min-width: fit-content !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
     hyphens: none !important;
-}
-
-/* Ensure metric cards have enough width */
-[data-testid="stMetricContainer"] > div {
-    min-width: fit-content !important;
-    width: auto !important;
+    letter-spacing: normal !important;
 }
 
 @keyframes countUp {

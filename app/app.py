@@ -615,22 +615,36 @@ elif page == "📊 Выбор композита":
                         st.metric("Микротвердость", f"{composite['microhardness_KHN']:.1f} KHN")
                     
                     # Характеристики - используем более широкие колонки для читаемости
-                    # Добавляем стили для предотвращения переноса букв внутри слов
+                    # Добавляем строгие стили для предотвращения переноса букв внутри слов
                     st.markdown("""
                     <style>
-                    /* Предотвращение переноса букв внутри слов в метриках */
-                    [data-testid="stMetricValue"] {
+                    /* СТРОГОЕ предотвращение переноса букв внутри слов в метриках */
+                    [data-testid="stMetricValue"],
+                    [data-testid="stMetricValue"] * {
                         white-space: nowrap !important;
                         word-break: keep-all !important;
                         overflow-wrap: normal !important;
+                        hyphens: none !important;
+                        letter-spacing: normal !important;
+                        min-width: fit-content !important;
+                        max-width: none !important;
                     }
-                    [data-testid="stMetricDelta"] {
+                    [data-testid="stMetricDelta"],
+                    [data-testid="stMetricDelta"] * {
                         white-space: nowrap !important;
                         word-break: keep-all !important;
+                        hyphens: none !important;
+                        letter-spacing: normal !important;
                     }
                     /* Увеличиваем минимальную ширину колонок */
-                    [data-testid="column"]:has([data-testid="stMetricContainer"]) {
-                        min-width: 150px !important;
+                    [data-testid="column"]:has([data-testid="stMetricContainer"]),
+                    [data-testid="column"] {
+                        min-width: 180px !important;
+                    }
+                    /* Предотвращение переноса для всех текстовых элементов */
+                    [data-testid="stMetricContainer"] * {
+                        word-break: keep-all !important;
+                        hyphens: none !important;
                     }
                     </style>
                     """, unsafe_allow_html=True)
