@@ -350,15 +350,19 @@ button[aria-label] {
     hyphens: none !important;
 }
 
-/* Metric containers - ensure enough width */
+/* Metric containers - ensure enough width and equal height */
 [data-testid="stMetricContainer"],
 [data-testid="stMetricContainer"] > div,
 [data-testid="stMetricContainer"] > div > div {
     overflow: visible !important;
     min-width: 200px !important;
+    min-height: 120px !important;
     width: auto !important;
     max-width: none !important;
-    display: inline-block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: stretch !important;
 }
 
 /* Metric delta (change indicator) - no breaking inside words */
