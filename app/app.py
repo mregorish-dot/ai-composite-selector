@@ -199,7 +199,13 @@ if page == "🏠 Главная":
     
     with col3:
         status = "✅ Обучена" if st.session_state.model_trained else "⏳ Не обучена"
-        st.metric("Модель", status)
+        # Используем markdown для предотвращения переноса букв
+        st.markdown(f"""
+        <div style="white-space: nowrap; word-break: keep-all; overflow: visible;">
+            <div style="font-size: 0.875rem; color: rgb(128, 128, 128); margin-bottom: 0.5rem;">Модель</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: rgb(49, 51, 63); white-space: nowrap; word-break: keep-all;">{status}</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Показываем примененные правила
     if st.session_state.article_rules:
