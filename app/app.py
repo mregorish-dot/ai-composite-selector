@@ -50,58 +50,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Загрузка кастомного CSS для минималистичного дизайна в стиле Apple
-def load_custom_css():
-    """Загрузка кастомного CSS файла"""
-    css_path = Path(__file__).parent / "custom_style.css"
-    if css_path.exists():
-        with open(css_path, 'r', encoding='utf-8') as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    
-    # Дополнительные строгие CSS правила для предотвращения переноса букв
-    st.markdown("""
-    <style>
-    /* СТРОГОЕ предотвращение переноса букв в метриках */
-    [data-testid="stMetricValue"],
-    [data-testid="stMetricValue"] * {
-        white-space: nowrap !important;
-        word-break: keep-all !important;
-        overflow-wrap: normal !important;
-        hyphens: none !important;
-        letter-spacing: normal !important;
-        min-width: fit-content !important;
-        max-width: 100% !important;
-        display: inline-block !important;
-        word-spacing: normal !important;
-        font-size: 2rem !important;
-        line-height: 1.2 !important;
-    }
-    
-    /* Увеличиваем ширину колонок с метриками */
-    [data-testid="column"] {
-        min-width: 220px !important;
-    }
-    
-    /* Контейнеры метрик - одинаковый размер и выравнивание */
-    [data-testid="stMetricContainer"] {
-        min-width: 200px !important;
-        min-height: 120px !important;
-        width: auto !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-    }
-    
-    /* Предотвращение переноса для всех элементов в метриках */
-    [data-testid="stMetricContainer"] * {
-        word-break: keep-all !important;
-        hyphens: none !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Применение кастомного CSS
-load_custom_css()
+# Кастомные стили отключены - используется стандартный интерфейс Streamlit
 
 # Заголовок
 st.title("🦷 ИИ-система выбора композита для реставрации жевательных зубов")
@@ -675,96 +624,7 @@ elif page == "📊 Выбор композита":
                             st.caption(f"**Альтернативный вариант** • Наполнитель: {filler_pct:.0f}% (оптимально 25-50%)")
                         st.markdown(f"**Оценка:** `{score:.3f} / 1.000`")
                     
-                    # ИДЕАЛЬНОЕ выравнивание - текст помещается в рамки, все ровно
-                    st.markdown("""
-                    <style>
-                    /* ФИКСИРОВАННАЯ высота для всех метрик - увеличенная для длинного текста */
-                    [data-testid="stMetricContainer"],
-                    [data-testid="stMetricContainer"] > div,
-                    [data-testid="stMetricContainer"] > div > div {
-                        height: 150px !important;
-                        min-height: 150px !important;
-                        max-height: 150px !important;
-                        display: flex !important;
-                        flex-direction: column !important;
-                        justify-content: center !important;
-                        align-items: center !important;
-                        box-sizing: border-box !important;
-                        padding: 0.75rem !important;
-                        margin: 0 !important;
-                        border-radius: 12px !important;
-                        background: #FFFFFF !important;
-                        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-                        overflow: visible !important; /* Изменено для показа всего текста */
-                    }
-                    
-                    /* Колонки с метриками - одинаковый размер */
-                    [data-testid="column"]:has([data-testid="stMetricContainer"]) {
-                        display: flex !important;
-                        align-items: stretch !important;
-                        padding: 0.5rem !important;
-                    }
-                    
-                    /* Метки метрик - выравнивание по центру, меньше шрифт */
-                    [data-testid="stMetricLabel"],
-                    [data-testid="stMetricLabel"] * {
-                        text-align: center !important;
-                        width: 100% !important;
-                        margin: 0 0 0.25rem 0 !important;
-                        font-size: 0.75rem !important;
-                        color: #6B7280 !important;
-                        word-break: keep-all !important;
-                        hyphens: none !important;
-                        white-space: normal !important;
-                        line-height: 1.2 !important;
-                        max-width: 100% !important;
-                        overflow: hidden !important;
-                        text-overflow: ellipsis !important;
-                    }
-                    
-                    /* Значения метрик - разрешен перенос для длинного текста */
-                    [data-testid="stMetricValue"],
-                    [data-testid="stMetricValue"] * {
-                        white-space: normal !important; /* Изменено для переноса */
-                        word-break: break-word !important; /* Перенос слов */
-                        overflow-wrap: break-word !important;
-                        hyphens: auto !important;
-                        letter-spacing: normal !important;
-                        text-align: center !important;
-                        width: 100% !important;
-                        max-width: 100% !important;
-                        font-size: 1.2rem !important; /* Уменьшен шрифт */
-                        line-height: 1.3 !important;
-                        font-weight: 700 !important;
-                        color: #1F2937 !important;
-                        margin: 0 !important;
-                        padding: 0 0.25rem !important; /* Небольшие отступы */
-                        overflow: visible !important; /* Показываем весь текст */
-                        text-overflow: clip !important; /* Без многоточия */
-                    }
-                    
-                    /* Дельта метрик */
-                    [data-testid="stMetricDelta"],
-                    [data-testid="stMetricDelta"] * {
-                        white-space: nowrap !important;
-                        word-break: keep-all !important;
-                        hyphens: none !important;
-                        letter-spacing: normal !important;
-                        text-align: center !important;
-                        font-size: 0.7rem !important;
-                        max-width: 100% !important;
-                        overflow: hidden !important;
-                        text-overflow: ellipsis !important;
-                    }
-                    
-                    /* Предотвращение переноса везде */
-                    [data-testid="stMetricContainer"] * {
-                        word-break: keep-all !important;
-                        hyphens: none !important;
-                        box-sizing: border-box !important;
-                    }
-                    </style>
-                    """, unsafe_allow_html=True)
+                    # Используется стандартный интерфейс Streamlit без кастомных стилей
                     
                     # Все метрики в одном ряду - 5 колонок (микротвердость + 4 остальные)
                     cols = st.columns(5)
@@ -789,7 +649,7 @@ elif page == "📊 Выбор композита":
                             'low': 'Низкая',
                             'medium': 'Средняя',
                             'high': 'Высокая',
-                            'very_high': 'Оч. высокая'  # Сокращено для помещается в рамку
+                            'very_high': 'Очень высокая'
                         }
                         wear_display = wear_ru.get(composite['wear_resistance'], composite['wear_resistance'])
                         st.metric("Износостойкость", wear_display)
