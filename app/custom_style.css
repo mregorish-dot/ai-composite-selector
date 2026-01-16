@@ -293,44 +293,57 @@ button[aria-label] {
     color: white;
 }
 
-/* Metrics with subtle animations - full text visible */
+/* Metrics with subtle animations - full text visible, no word breaking */
 [data-testid="stMetricValue"] {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--text-primary);
     animation: countUp 0.8s ease-out;
-    word-wrap: break-word !important;
     overflow: visible !important;
     text-overflow: clip !important;
-    white-space: normal !important;
+    white-space: nowrap !important;
     max-width: 100% !important;
     min-width: 0 !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
 }
 
-/* Metric labels - full text visible */
+/* Metric labels - no breaking inside words */
 [data-testid="stMetricLabel"] {
-    word-wrap: break-word !important;
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: normal !important;
     line-height: 1.4 !important;
     max-width: 100% !important;
     min-width: 0 !important;
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+    hyphens: none !important;
 }
 
 /* Metric containers */
 [data-testid="stMetricContainer"] {
     overflow: visible !important;
-    min-width: 0 !important;
+    min-width: 150px !important;
+    width: auto !important;
 }
 
-/* Metric delta (change indicator) */
+/* Metric delta (change indicator) - no breaking inside words */
 [data-testid="stMetricDelta"] {
-    word-wrap: break-word !important;
     overflow: visible !important;
     text-overflow: clip !important;
-    white-space: normal !important;
+    white-space: nowrap !important;
     max-width: 100% !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+}
+
+/* Ensure metric cards have enough width */
+[data-testid="stMetricContainer"] > div {
+    min-width: fit-content !important;
+    width: auto !important;
 }
 
 @keyframes countUp {
