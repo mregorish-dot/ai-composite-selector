@@ -704,13 +704,13 @@ elif page == "📊 Выбор композита":
                     with cols[0]:
                         st.metric("Усадка", f"{composite['polymerization_shrinkage_percent']:.2f}%")
                     
-                    # Наполнитель с цветовой индикацией
+                    # Наполнитель с индикацией в метке
                     filler = composite['filler_content_percent']
                     with cols[1]:
                         if 25 <= filler < 50:
-                            st.metric("Наполнитель", f"{filler:.0f}%", delta="Оптимально")
+                            st.metric("Наполнитель (оптимально)", f"{filler:.0f}%")
                         elif filler >= 50:
-                            st.metric("Наполнитель", f"{filler:.0f}%", delta="Альтернатива", delta_color="off")
+                            st.metric("Наполнитель (альтернатива)", f"{filler:.0f}%")
                         else:
                             st.metric("Наполнитель", f"{filler:.0f}%")
                     
