@@ -651,23 +651,32 @@ elif page == "📊 Выбор композита":
                     
                     # Используется стандартный интерфейс Streamlit без кастомных стилей
                     
-                    # CSS для убирания троеточий в метриках
+                    # CSS для убирания троеточий БЕЗ переносов слов
                     st.markdown("""
                     <style>
-                    /* Убираем троеточия из метрик */
+                    /* Убираем троеточия но запрещаем переносы слов в метриках */
                     [data-testid="stMetricValue"],
-                    [data-testid="stMetricValue"] *,
-                    [data-testid="stMetricLabel"],
-                    [data-testid="stMetricLabel"] * {
-                        white-space: normal !important;
+                    [data-testid="stMetricValue"] * {
+                        white-space: nowrap !important; /* Запрещаем перенос */
                         overflow: visible !important;
                         text-overflow: clip !important;
-                        word-wrap: break-word !important;
-                        word-break: break-word !important;
+                        word-wrap: normal !important;
+                        word-break: keep-all !important; /* Не разрываем слова */
                         max-width: 100% !important;
+                        font-size: 0.9rem !important; /* Уменьшаем шрифт чтобы поместилось */
+                    }
+                    [data-testid="stMetricLabel"],
+                    [data-testid="stMetricLabel"] * {
+                        white-space: nowrap !important; /* Запрещаем перенос */
+                        overflow: visible !important;
+                        text-overflow: clip !important;
+                        word-wrap: normal !important;
+                        word-break: keep-all !important;
+                        font-size: 0.7rem !important; /* Уменьшаем шрифт метки */
                     }
                     [data-testid="stMetricContainer"] {
                         overflow: visible !important;
+                        min-width: 180px !important; /* Увеличиваем минимальную ширину */
                     }
                     </style>
                     """, unsafe_allow_html=True)
@@ -695,7 +704,7 @@ elif page == "📊 Выбор композита":
                             'low': 'Низкая',
                             'medium': 'Средняя',
                             'high': 'Высокая',
-                            'very_high': 'Оч. высокая'  # Сокращено
+                            'very_high': 'Оч.высокая'  # Без пробела для компактности
                         }
                         wear_display = wear_ru.get(composite['wear_resistance'], composite['wear_resistance'])
                         st.metric("Износостойкость", wear_display)
