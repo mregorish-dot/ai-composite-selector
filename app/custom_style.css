@@ -357,12 +357,14 @@ button[aria-label] {
     overflow: visible !important;
     min-width: 200px !important;
     min-height: 120px !important;
+    height: auto !important;
     width: auto !important;
     max-width: none !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     align-items: stretch !important;
+    box-sizing: border-box !important;
 }
 
 /* Metric delta (change indicator) - no breaking inside words */
