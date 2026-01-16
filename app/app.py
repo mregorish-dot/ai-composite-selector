@@ -654,37 +654,31 @@ elif page == "📊 Выбор композита":
                     # Определяем, приоритетный это вариант или альтернативный
                     is_priority = justification.get('is_priority', True)
                     
-                    col_a, col_b = st.columns([3, 1])
+                    # Заголовок и оценка
+                    if is_priority:
+                        st.subheader(f"✅ Вариант {i}: {composite['name']} (Приоритетный)")
+                    else:
+                        st.subheader(f"⚠️ Вариант {i}: {composite['name']} (Альтернативный)")
+                    st.markdown(f"**Оценка:** {score:.3f} / 1.000")
                     
-                    with col_a:
-                        if is_priority:
-                            st.subheader(f"✅ Вариант {i}: {composite['name']} (Приоритетный)")
-                        else:
-                            st.subheader(f"⚠️ Вариант {i}: {composite['name']} (Альтернативный)")
-                        st.markdown(f"**Оценка:** {score:.3f} / 1.000")
-                        
-                        if not is_priority:
-                            st.warning(f"⚠️ Альтернативный вариант: наполнитель {justification.get('filler_content', 0):.0f}% (оптимально 25-50% по статье 2)")
+                    if not is_priority:
+                        st.warning(f"⚠️ Альтернативный вариант: наполнитель {justification.get('filler_content', 0):.0f}% (оптимально 25-50% по статье 2)")
                     
-                    with col_b:
-                        # Добавляем специальные стили для выравнивания карточки микротвердости
-                        st.markdown("""
-                        <style>
-                        /* Выравнивание карточки микротвердости с остальными метриками */
-                        [data-testid="stMetricContainer"] {
-                            min-height: 120px !important;
-                            display: flex !important;
-                            flex-direction: column !important;
-                            justify-content: center !important;
-                        }
-                        </style>
-                        """, unsafe_allow_html=True)
-                        st.metric("Микротвердость", f"{composite['microhardness_KHN']:.1f} KHN")
-                    
-                    # Характеристики - используем более широкие колонки для читаемости
-                    # Добавляем строгие стили для предотвращения переноса букв внутри слов
+                    # Общие стили для всех метрик - одинаковая высота и выравнивание
                     st.markdown("""
                     <style>
+                    /* Все метрики должны иметь одинаковую высоту и выравнивание */
+                    [data-testid="stMetricContainer"],
+                    [data-testid="stMetricContainer"] > div,
+                    [data-testid="stMetricContainer"] > div > div {
+                        min-height: 120px !important;
+                        height: auto !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        justify-content: center !important;
+                        align-items: stretch !important;
+                        box-sizing: border-box !important;
+                    }
                     /* СТРОГОЕ предотвращение переноса букв внутри слов в метриках */
                     [data-testid="stMetricValue"],
                     [data-testid="stMetricValue"] * {
@@ -695,6 +689,8 @@ elif page == "📊 Выбор композита":
                         letter-spacing: normal !important;
                         min-width: fit-content !important;
                         max-width: 100% !important;
+                        font-size: 2rem !important;
+                        line-height: 1.2 !important;
                     }
                     [data-testid="stMetricDelta"],
                     [data-testid="stMetricDelta"] * {
@@ -702,11 +698,6 @@ elif page == "📊 Выбор композита":
                         word-break: keep-all !important;
                         hyphens: none !important;
                         letter-spacing: normal !important;
-                    }
-                    /* Увеличиваем минимальную ширину колонок */
-                    [data-testid="column"]:has([data-testid="stMetricContainer"]),
-                    [data-testid="column"] {
-                        min-width: 180px !important;
                     }
                     /* Предотвращение переноса для всех текстовых элементов */
                     [data-testid="stMetricContainer"] * {
@@ -716,28 +707,16 @@ elif page == "📊 Выбор композита":
                     </style>
                     """, unsafe_allow_html=True)
                     
-                    # Убеждаемся, что все метрики имеют одинаковую высоту
-                    st.markdown("""
-                    <style>
-                    /* Все метрики должны иметь одинаковую высоту */
-                    [data-testid="stMetricContainer"] {
-                        min-height: 120px !important;
-                        height: auto !important;
-                        display: flex !important;
-                        flex-direction: column !important;
-                        justify-content: center !important;
-                        align-items: stretch !important;
-                    }
-                    </style>
-                    """, unsafe_allow_html=True)
-                    
-                    cols = st.columns(4)
+                    # Все метрики в одном ряду - 5 колонок (микротвердость + 4 остальные)
+                    cols = st.columns(5)
                     with cols[0]:
+                        st.metric("Микротвердость", f"{composite['microhardness_KHN']:.1f} KHN")
+                    with cols[1]:
                         st.metric("Усадка", f"{composite['polymerization_shrinkage_percent']:.2f}%")
                     
                     # Наполнитель с индикацией в метке
                     filler = composite['filler_content_percent']
-                    with cols[1]:
+                    with cols[2]:
                         if 25 <= filler < 50:
                             st.metric("Наполнитель (оптимально)", f"{filler:.0f}%")
                         elif filler >= 50:
@@ -745,7 +724,7 @@ elif page == "📊 Выбор композита":
                         else:
                             st.metric("Наполнитель", f"{filler:.0f}%")
                     
-                    with cols[2]:
+                    with cols[3]:
                         # Переводим износостойкость на русский для читаемости
                         wear_ru = {
                             'low': 'Низкая',
@@ -756,7 +735,7 @@ elif page == "📊 Выбор композита":
                         wear_display = wear_ru.get(composite['wear_resistance'], composite['wear_resistance'])
                         st.metric("Износостойкость", wear_display)
                     
-                    with cols[3]:
+                    with cols[4]:
                         st.metric("Глубина", f"{composite['depth_of_cure_mm']:.2f} мм")
                     
                     # Обоснование
