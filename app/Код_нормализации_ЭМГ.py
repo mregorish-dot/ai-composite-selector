@@ -231,7 +231,22 @@ def create_emg_features(
     """
     features = {}
     
-    apparatus = EMGApparatus(emg_data.get('apparatus', 'Synapsys'))
+    # Обработка аппарата с безопасной проверкой
+    apparatus_str = emg_data.get('apparatus', 'Synapsys')
+    try:
+        apparatus = EMGApparatus(apparatus_str)
+    except ValueError:
+        # Если аппарат не найден в enum, пытаемся определить по подстроке
+        apparatus_str_lower = apparatus_str.lower()
+        if 'bjoemg' in apparatus_str_lower or 'biopak' in apparatus_str_lower:
+            apparatus = EMGApparatus.BJOEMG2
+        elif 'kolibri' in apparatus_str_lower or 'колибри' in apparatus_str_lower:
+            apparatus = EMGApparatus.KOLIBRI
+        elif 'synapsys' in apparatus_str_lower or 'синапсис' in apparatus_str_lower:
+            apparatus = EMGApparatus.SYNAPSYS
+        else:
+            # По умолчанию используем Synapsys
+            apparatus = EMGApparatus.SYNAPSYS
     
     # Исходные значения
     features['masseter_right_chewing_raw'] = emg_data.get('masseter_right_chewing', 0)
