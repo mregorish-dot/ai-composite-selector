@@ -70,9 +70,11 @@ def load_custom_css():
         hyphens: none !important;
         letter-spacing: normal !important;
         min-width: fit-content !important;
-        max-width: none !important;
+        max-width: 100% !important;
         display: inline-block !important;
         word-spacing: normal !important;
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
     }
     
     /* Увеличиваем ширину колонок с метриками */
@@ -676,7 +678,7 @@ elif page == "📊 Выбор композита":
                         hyphens: none !important;
                         letter-spacing: normal !important;
                         min-width: fit-content !important;
-                        max-width: none !important;
+                        max-width: 100% !important;
                     }
                     [data-testid="stMetricDelta"],
                     [data-testid="stMetricDelta"] * {
