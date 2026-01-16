@@ -82,10 +82,14 @@ def load_custom_css():
         min-width: 220px !important;
     }
     
-    /* Контейнеры метрик - больше места */
+    /* Контейнеры метрик - одинаковый размер и выравнивание */
     [data-testid="stMetricContainer"] {
         min-width: 200px !important;
+        min-height: 120px !important;
         width: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
     }
     
     /* Предотвращение переноса для всех элементов в метриках */
