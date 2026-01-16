@@ -664,22 +664,49 @@ elif page == "📊 Выбор композита":
                     if not is_priority:
                         st.warning(f"⚠️ Альтернативный вариант: наполнитель {justification.get('filler_content', 0):.0f}% (оптимально 25-50% по статье 2)")
                     
-                    # Общие стили для всех метрик - одинаковая высота и выравнивание
+                    # СТРОГИЕ стили Apple-уровня для идеального выравнивания всех метрик
                     st.markdown("""
                     <style>
-                    /* Все метрики должны иметь одинаковую высоту и выравнивание */
+                    /* ФИКСИРОВАННАЯ высота для всех метрик - Apple уровень точности */
                     [data-testid="stMetricContainer"],
                     [data-testid="stMetricContainer"] > div,
                     [data-testid="stMetricContainer"] > div > div {
-                        min-height: 120px !important;
-                        height: auto !important;
+                        height: 140px !important;
+                        min-height: 140px !important;
+                        max-height: 140px !important;
                         display: flex !important;
                         flex-direction: column !important;
                         justify-content: center !important;
-                        align-items: stretch !important;
+                        align-items: center !important;
                         box-sizing: border-box !important;
+                        padding: 1rem !important;
+                        margin: 0 !important;
+                        border-radius: 12px !important;
+                        background: #FFFFFF !important;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
                     }
-                    /* СТРОГОЕ предотвращение переноса букв внутри слов в метриках */
+                    
+                    /* Колонки с метриками - одинаковый размер */
+                    [data-testid="column"]:has([data-testid="stMetricContainer"]) {
+                        display: flex !important;
+                        align-items: stretch !important;
+                        padding: 0.5rem !important;
+                    }
+                    
+                    /* Метки метрик - выравнивание по центру */
+                    [data-testid="stMetricLabel"],
+                    [data-testid="stMetricLabel"] * {
+                        text-align: center !important;
+                        width: 100% !important;
+                        margin: 0 0 0.5rem 0 !important;
+                        font-size: 0.875rem !important;
+                        color: #6B7280 !important;
+                        word-break: keep-all !important;
+                        hyphens: none !important;
+                        white-space: normal !important;
+                    }
+                    
+                    /* Значения метрик - идеальное выравнивание */
                     [data-testid="stMetricValue"],
                     [data-testid="stMetricValue"] * {
                         white-space: nowrap !important;
@@ -687,19 +714,27 @@ elif page == "📊 Выбор композита":
                         overflow-wrap: normal !important;
                         hyphens: none !important;
                         letter-spacing: normal !important;
-                        min-width: fit-content !important;
-                        max-width: 100% !important;
+                        text-align: center !important;
+                        width: 100% !important;
                         font-size: 2rem !important;
-                        line-height: 1.2 !important;
+                        line-height: 1.3 !important;
+                        font-weight: 700 !important;
+                        color: #1F2937 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
                     }
+                    
+                    /* Дельта метрик */
                     [data-testid="stMetricDelta"],
                     [data-testid="stMetricDelta"] * {
                         white-space: nowrap !important;
                         word-break: keep-all !important;
                         hyphens: none !important;
                         letter-spacing: normal !important;
+                        text-align: center !important;
                     }
-                    /* Предотвращение переноса для всех текстовых элементов */
+                    
+                    /* Предотвращение переноса везде */
                     [data-testid="stMetricContainer"] * {
                         word-break: keep-all !important;
                         hyphens: none !important;
