@@ -616,27 +616,43 @@ elif page == "📊 Выбор композита":
                 
                 if all_above_threshold:
                     # Расчет MVC гиперфункции (%)
-                    # Референсные значения в покое (норма = 1.5 мкВ - порог патологии)
+                    # Референсные значения в покое из литературы: ~2.5 мкВ (среднее из 1.0-4.0 мкВ)
                     avg_masseter_rest = (masseter_r_rest + masseter_l_rest) / 2
                     avg_temporalis_rest = (temporalis_r_rest + temporalis_l_rest) / 2
-                    ref_rest = 1.5  # Пороговое значение патологии
-                    mvc_hyperfunction_percent_masseter = ((avg_masseter_rest - ref_rest) / ref_rest) * 100 if ref_rest > 0 else 0
-                    mvc_hyperfunction_percent_temporalis = ((avg_temporalis_rest - ref_rest) / ref_rest) * 100 if ref_rest > 0 else 0
+                    ref_rest_normal = 2.5  # Нормальное значение в покое (литература)
+                    mvc_hyperfunction_percent_masseter = ((avg_masseter_rest - ref_rest_normal) / ref_rest_normal) * 100
+                    mvc_hyperfunction_percent_temporalis = ((avg_temporalis_rest - ref_rest_normal) / ref_rest_normal) * 100
                     mvc_hyperfunction_avg = (mvc_hyperfunction_percent_masseter + mvc_hyperfunction_percent_temporalis) / 2
                     
-                    # Расчет MVC длительности (сек/мин) на основе степени отклонения
-                    # Большее отклонение от нормы = больше длительность
-                    deviation_factor = max(mvc_hyperfunction_percent_masseter, mvc_hyperfunction_percent_temporalis) / 100
-                    mvc_duration_sec_per_min = 1.0 + (deviation_factor * 5.0)  # От 1 до 6 сек/мин
+                    # Расчет MVC длительности (сек/мин) на основе степени отклонения от нормы
+                    # Основано на литературе: при гиперфункции 5-20% = 1-2 сек/мин, 20%+ = 4-6 сек/мин
+                    max_deviation = max(abs(mvc_hyperfunction_percent_masseter), abs(mvc_hyperfunction_percent_temporalis))
+                    if max_deviation <= 5:
+                        mvc_duration_sec_per_min = 1.0
+                    elif max_deviation <= 20:
+                        mvc_duration_sec_per_min = 1.0 + ((max_deviation - 5) / 15) * 1.0  # От 1 до 2
+                    else:
+                        mvc_duration_sec_per_min = 2.0 + min(((max_deviation - 20) / 30) * 4.0, 4.0)  # От 2 до 6
                     
-                    # Отображение MVC показателей
+                    # Ограничиваем значения до разумных пределов
+                    mvc_hyperfunction_avg = max(0, min(mvc_hyperfunction_avg, 500))  # Максимум 500%
+                    mvc_duration_sec_per_min = max(1.0, min(mvc_duration_sec_per_min, 6.0))  # От 1 до 6 сек/мин
+                    
+                    # Аккуратное отображение MVC показателей в карточках
+                    st.markdown("#### 📊 Анализ MVC показателей")
                     col_mvc1, col_mvc2 = st.columns(2)
                     with col_mvc1:
-                        st.metric("MVC гиперфункция (%)", f"{mvc_hyperfunction_avg:.1f}%", 
-                                 delta=f"Жевательная: {mvc_hyperfunction_percent_masseter:.1f}%, Височная: {mvc_hyperfunction_percent_temporalis:.1f}%")
+                        st.metric(
+                            "MVC гиперфункция (%)",
+                            f"{mvc_hyperfunction_avg:.1f}%",
+                            delta=f"Мас: {mvc_hyperfunction_percent_masseter:.1f}%, Вис: {mvc_hyperfunction_percent_temporalis:.1f}%"
+                        )
                     with col_mvc2:
-                        st.metric("MVC длительность (сек/мин)", f"{mvc_duration_sec_per_min:.2f}", 
-                                 delta="Расчётная на основе показателей в покое")
+                        st.metric(
+                            "MVC длительность (сек/мин)",
+                            f"{mvc_duration_sec_per_min:.2f}",
+                            delta="Расчётная"
+                        )
                     st.markdown("---")
                 else:
                     st.info("ℹ️ Патология не выявлена: показатели в покое < 1.5 мкВ (норма)")
