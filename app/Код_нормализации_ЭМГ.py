@@ -121,8 +121,11 @@ class EMGNormalizer:
             control = self.CONTROL_VALUES_SYNAPSYS[condition][muscle]
         elif apparatus == EMGApparatus.KOLIBRI:
             control = self.CONTROL_VALUES_KOLIBRI[condition][muscle]
+        elif apparatus == EMGApparatus.BJOEMG2:
+            control = self.CONTROL_VALUES_BJOEMG2[condition][muscle]
         else:
-            raise ValueError(f"Контрольные значения для {apparatus} не определены")
+            # Для неизвестных аппаратов используем Synapsys как fallback
+            control = self.CONTROL_VALUES_SYNAPSYS[condition][muscle]
         
         return (value / control) * 100
     
