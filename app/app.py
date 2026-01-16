@@ -97,56 +97,6 @@ def load_custom_css():
 # Применение кастомного CSS
 load_custom_css()
 
-    # Дополнительные строгие CSS правила для предотвращения переноса букв
-    st.markdown("""
-    <style>
-    /* СТРОГОЕ предотвращение переноса букв - применяется глобально */
-    [data-testid="stMetricValue"],
-    [data-testid="stMetricValue"] *,
-    [data-testid="stMetricContainer"] [data-testid="stMetricValue"],
-    [data-testid="stMetricContainer"] [data-testid="stMetricValue"] * {
-        white-space: nowrap !important;
-        word-break: keep-all !important;
-        overflow-wrap: normal !important;
-        hyphens: none !important;
-        letter-spacing: normal !important;
-        min-width: fit-content !important;
-        max-width: 100% !important;
-        display: inline-block !important;
-        font-size: 2rem !important;
-        line-height: 1.2 !important;
-    }
-    
-    /* Для метрики "Модель" особенно строго */
-    [data-testid="column"]:has([data-testid="stMetricContainer"]) [data-testid="stMetricValue"] {
-        white-space: nowrap !important;
-        word-break: keep-all !important;
-        overflow: visible !important;
-        min-width: 200px !important;
-        width: auto !important;
-        font-size: 2rem !important;
-        max-width: 100% !important;
-    }
-    
-    /* Увеличиваем ширину колонок с метриками */
-    [data-testid="column"] {
-        min-width: 220px !important;
-    }
-    
-    /* Предотвращение переноса для всех текстовых элементов в метриках */
-    [data-testid="stMetricContainer"] * {
-        word-break: keep-all !important;
-        hyphens: none !important;
-    }
-    
-    [data-testid="stMetricValue"] {
-        word-spacing: normal !important;
-        font-size: 2rem !important;
-        line-height: 1.2 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
 # Заголовок
 st.title("🦷 ИИ-система выбора композита для реставрации жевательных зубов")
 st.markdown("---")
