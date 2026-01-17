@@ -1018,7 +1018,7 @@ elif page == "📥 Загрузка данных":
         
         # Рекомендуемые запросы
         st.markdown("**💡 Рекомендуемые поисковые запросы:**")
-        recommended_queries = get_recommended_queries()
+        recommended_queries = st.session_state.get_recommended_queries()
         selected_query = st.selectbox(
             "Выберите готовый запрос или введите свой:",
             ["Введите свой запрос..."] + recommended_queries
