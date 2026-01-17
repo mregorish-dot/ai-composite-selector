@@ -1042,12 +1042,21 @@ elif page == "📥 Загрузка данных":
                     raise AttributeError("Функция get_recommended_queries не найдена в модуле article_searcher")
                 
                 # Теперь импортируем нужные классы/функции
-                ArticleSearcher = article_searcher_module.ArticleSearcher
-                get_recommended_queries = article_searcher_module.get_recommended_queries
+                ArticleSearcher_class = getattr(article_searcher_module, 'ArticleSearcher', None)
+                get_recommended_queries_func = getattr(article_searcher_module, 'get_recommended_queries', None)
+                
+                if ArticleSearcher_class is None:
+                    raise AttributeError("Класс ArticleSearcher не найден в модуле article_searcher")
+                if get_recommended_queries_func is None:
+                    raise AttributeError("Функция get_recommended_queries не найдена в модуле article_searcher")
                 
                 # Создаем экземпляр и сохраняем в session_state
-                st.session_state.article_searcher = ArticleSearcher()
-                st.session_state.get_recommended_queries = get_recommended_queries
+                try:
+                    st.session_state.article_searcher = ArticleSearcher_class()
+                    st.session_state.get_recommended_queries = get_recommended_queries_func
+                except Exception as init_error:
+                    # Если ошибка при создании экземпляра (например, отсутствуют зависимости)
+                    raise Exception(f"Ошибка при создании экземпляра ArticleSearcher: {init_error}. Установите зависимости: python3 -m pip install requests beautifulsoup4 feedparser lxml")
                 
             except ImportError as e:
                 st.error(f"❌ Ошибка импорта модуля поиска: {e}")
