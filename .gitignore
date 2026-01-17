@@ -34,6 +34,11 @@ build/
 app/saved_articles.json
 app/saved_pdfs/
 
+# Large model files (too big for GitHub)
+*.pkl
+app/trained_model.pkl
+app/auto_loaded_articles.json
+
 # Node
 node_modules/
 npm-debug.log

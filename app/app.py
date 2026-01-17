@@ -28,8 +28,6 @@ if 'composite_selector' in sys.modules:
     del sys.modules['composite_selector']
 if 'Код_нормализации_ЭМГ' in sys.modules:
     del sys.modules['Код_нормализации_ЭМГ']
-if 'article_searcher' in sys.modules:
-    del sys.modules['article_searcher']
 
 # Импорт модулей
 try:
@@ -102,6 +100,30 @@ if 'knowledge_extractor' not in st.session_state:
     except ImportError:
         pass  # Модуль не найден, пропускаем
     
+    # Автоматический поиск статей в интернете и обучение модели
+    try:
+        from auto_train_model import auto_train_on_startup, auto_load_and_train, train_model_with_articles
+        import os
+        from pathlib import Path
+        
+        model_path = os.path.join(Path(__file__).parent.absolute(), "trained_model.pkl")
+        
+        # Проверяем, есть ли уже обученная модель
+        if not os.path.exists(model_path):
+            # Запускаем автоматическое обучение в фоновом режиме
+            print("🔄 Обученной модели не найдено. Запускаю автоматическое обучение...")
+            try:
+                # Ищем статьи и обучаем модель
+                articles = auto_load_and_train()
+                if articles:
+                    train_model_with_articles(articles)
+            except Exception as e:
+                print(f"⚠️ Ошибка при автоматическом обучении: {e}")
+        else:
+            print(f"✅ Обученная модель найдена: {model_path}")
+    except ImportError:
+        pass  # Модуль не найден, пропускаем
+    
     # Загрузка сохраненных статей
     saved_articles = load_saved_articles()
     for article_data in saved_articles:
@@ -139,7 +161,21 @@ if 'knowledge_base' not in st.session_state:
 if 'article_rules' not in st.session_state:
     st.session_state.article_rules = get_extraction_rules()
 if 'ml_model' not in st.session_state:
-    st.session_state.ml_model = None  # ML модель для предсказания
+    # Загрузка обученной модели, если она существует
+    st.session_state.ml_model = None
+    try:
+        from model_trainer import CompositeModelTrainer
+        import os
+        from pathlib import Path
+        
+        model_path = os.path.join(Path(__file__).parent.absolute(), "trained_model.pkl")
+        if os.path.exists(model_path):
+            trainer = CompositeModelTrainer()
+            trainer.load_model(model_path)
+            st.session_state.ml_model = trainer
+            print(f"✅ Обученная модель загружена из {model_path}")
+    except Exception as e:
+        print(f"⚠️ Ошибка при загрузке модели: {e}")
 if 'clinical_pairs' not in st.session_state:
     # Предзагружаем пары из клинических статей
     try:
@@ -774,7 +810,7 @@ elif page == "📥 Загрузка данных":
     """)
     
     # Вкладки для разных способов загрузки
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📄 Загрузка текста статьи", "📑 Загрузка PDF", "🔗 Добавление ссылки", "🌐 Автопоиск в интернете", "📋 Список статей"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📄 Загрузка текста статьи", "📑 Загрузка PDF", "🔗 Добавление ссылки", "📋 Список статей"])
     
     with tab1:
         st.subheader("Загрузка текста статьи")
@@ -986,313 +1022,6 @@ elif page == "📥 Загрузка данных":
                     st.error("❌ Введите URL статьи")
     
     with tab4:
-        st.subheader("🌐 Автоматический поиск статей в интернете")
-        
-        st.info("""
-        **Автоматический поиск статей из научных баз данных:**
-        - 🔬 **PubMed** — крупнейшая база медицинских публикаций
-        - 📖 **PubMed Central** — открытый доступ к полным текстам
-        - 📄 **arXiv** — препринты научных статей
-        
-        Система автоматически найдет статьи, загрузит их и извлечет знания для обучения модели.
-        """)
-        
-        # Инициализация поисковика
-        if 'article_searcher' not in st.session_state:
-            import sys
-            import os
-            from pathlib import Path
-            
-            # Получаем абсолютный путь к директории app
-            app_dir = Path(__file__).parent.absolute()
-            app_dir_str = str(app_dir)
-            
-            try:
-                # Импорт здесь, чтобы не блокировать запуск приложения если модуль недоступен
-                # Добавляем текущую директорию в путь для импорта
-                
-                # Добавляем в sys.path если еще нет
-                if app_dir_str not in sys.path:
-                    sys.path.insert(0, app_dir_str)
-                
-                # Очищаем кэш модуля если был загружен ранее
-                if 'article_searcher' in sys.modules:
-                    del sys.modules['article_searcher']
-                
-                # Сначала импортируем модуль целиком для проверки
-                # Используем importlib для более надежного импорта
-                import importlib.util
-                article_searcher_path = os.path.join(app_dir_str, 'article_searcher.py')
-                
-                if not os.path.exists(article_searcher_path):
-                    raise FileNotFoundError(f"Файл article_searcher.py не найден: {article_searcher_path}")
-                
-                spec = importlib.util.spec_from_file_location("article_searcher", article_searcher_path)
-                if spec is None or spec.loader is None:
-                    raise ImportError(f"Не удалось создать spec для модуля article_searcher")
-                
-                article_searcher_module = importlib.util.module_from_spec(spec)
-                sys.modules['article_searcher'] = article_searcher_module
-                spec.loader.exec_module(article_searcher_module)
-                
-                # Проверяем, что класс существует в модуле
-                if not hasattr(article_searcher_module, 'ArticleSearcher'):
-                    raise AttributeError("Класс ArticleSearcher не найден в модуле article_searcher")
-                if not hasattr(article_searcher_module, 'get_recommended_queries'):
-                    raise AttributeError("Функция get_recommended_queries не найдена в модуле article_searcher")
-                
-                # Теперь импортируем нужные классы/функции
-                ArticleSearcher_class = getattr(article_searcher_module, 'ArticleSearcher', None)
-                get_recommended_queries_func = getattr(article_searcher_module, 'get_recommended_queries', None)
-                
-                if ArticleSearcher_class is None:
-                    raise AttributeError("Класс ArticleSearcher не найден в модуле article_searcher")
-                if get_recommended_queries_func is None:
-                    raise AttributeError("Функция get_recommended_queries не найдена в модуле article_searcher")
-                
-                # Создаем экземпляр и сохраняем в session_state
-                try:
-                    st.session_state.article_searcher = ArticleSearcher_class()
-                    st.session_state.get_recommended_queries = get_recommended_queries_func
-                except Exception as init_error:
-                    # Если ошибка при создании экземпляра (например, отсутствуют зависимости)
-                    raise Exception(f"Ошибка при создании экземпляра ArticleSearcher: {init_error}. Установите зависимости: python3 -m pip install requests beautifulsoup4 feedparser lxml")
-                
-            except ImportError as e:
-                st.error(f"❌ Ошибка импорта модуля поиска: {e}")
-                st.info(f"**Текущая директория:** {app_dir_str}")
-                article_searcher_path = os.path.join(app_dir_str, 'article_searcher.py')
-                st.info(f"**Файл article_searcher.py существует:** {os.path.exists(article_searcher_path)}")
-                if os.path.exists(article_searcher_path):
-                    st.info(f"**Путь к файлу:** {article_searcher_path}")
-                st.info("""
-                **Установите зависимости:**
-                ```bash
-                python3 -m pip install requests beautifulsoup4 feedparser lxml
-                ```
-                """)
-                import traceback
-                with st.expander("🔍 Подробности ошибки", expanded=True):
-                    st.code(traceback.format_exc())
-                st.stop()
-            except (NameError, AttributeError) as e:
-                # Обработка случая, когда ArticleSearcher не определен
-                st.error(f"❌ Класс ArticleSearcher не найден: {e}")
-                st.info(f"**Текущая директория:** {app_dir_str}")
-                article_searcher_path = os.path.join(app_dir_str, 'article_searcher.py')
-                st.info(f"**Файл article_searcher.py существует:** {os.path.exists(article_searcher_path)}")
-                if os.path.exists(article_searcher_path):
-                    st.info(f"**Путь к файлу:** {article_searcher_path}")
-                    # Попробуем проверить содержимое файла
-                    try:
-                        with open(article_searcher_path, 'r', encoding='utf-8') as f:
-                            content = f.read()
-                            if 'class ArticleSearcher' in content:
-                                st.warning("⚠️ Класс ArticleSearcher найден в файле, но импорт не работает. Возможно, проблема с зависимостями.")
-                            else:
-                                st.error("❌ Класс ArticleSearcher не найден в файле article_searcher.py")
-                    except Exception as read_error:
-                        st.warning(f"Не удалось прочитать файл: {read_error}")
-                st.info("""
-                **Установите зависимости:**
-                ```bash
-                python3 -m pip install requests beautifulsoup4 feedparser lxml
-                ```
-                """)
-                import traceback
-                with st.expander("🔍 Подробности ошибки", expanded=True):
-                    st.code(traceback.format_exc())
-                st.stop()
-            except Exception as e:
-                error_msg = str(e)
-                error_type = type(e).__name__
-                
-                st.error(f"❌ Ошибка инициализации поисковика ({error_type}): {error_msg}")
-                st.info(f"**Текущая директория:** {app_dir_str}")
-                article_searcher_path = os.path.join(app_dir_str, 'article_searcher.py')
-                st.info(f"**Файл article_searcher.py существует:** {os.path.exists(article_searcher_path)}")
-                
-                # Проверяем, связана ли ошибка с зависимостями
-                if any(dep in error_msg.lower() for dep in ['requests', 'beautifulsoup', 'feedparser', 'lxml', 'no module', 'cannot import']):
-                    st.warning("⚠️ Проблема с зависимостями. Установите их:")
-                else:
-                    st.info("**Установите зависимости:**")
-                
-                st.code("python3 -m pip install requests beautifulsoup4 feedparser lxml", language="bash")
-                
-                import traceback
-                # Expander открыт по умолчанию для удобства диагностики
-                with st.expander("🔍 Подробности ошибки (нажмите для диагностики)", expanded=True):
-                    st.code(traceback.format_exc())
-                    st.info("**Скопируйте этот traceback и отправьте разработчику для диагностики**")
-                st.stop()
-        
-        # Рекомендуемые запросы
-        st.markdown("**💡 Рекомендуемые поисковые запросы:**")
-        
-        # Проверяем, что функция get_recommended_queries доступна
-        if 'get_recommended_queries' not in st.session_state:
-            st.error("❌ Поисковик не инициализирован. Проверьте ошибки выше.")
-            st.stop()
-        
-        recommended_queries = st.session_state.get_recommended_queries()
-        selected_query = st.selectbox(
-            "Выберите готовый запрос или введите свой:",
-            ["Введите свой запрос..."] + recommended_queries
-        )
-        
-        # Поле для ввода собственного запроса
-        if selected_query == "Введите свой запрос...":
-            custom_query = st.text_input(
-                "Введите поисковый запрос:",
-                placeholder="Например: dental composite EMG masticatory muscles"
-            )
-            search_query = custom_query
-        else:
-            search_query = selected_query
-        
-        # Настройки поиска
-        col1, col2 = st.columns(2)
-        with col1:
-            max_results = st.number_input("Максимум результатов на источник", min_value=1, max_value=20, value=5)
-        with col2:
-            auto_process = st.checkbox("Автоматически обработать найденные статьи", value=True)
-        
-        # Кнопка поиска
-        if st.button("🔍 Найти статьи в интернете", type="primary", use_container_width=True):
-            if not search_query:
-                st.error("❌ Введите поисковый запрос")
-            elif 'article_searcher' not in st.session_state:
-                st.error("❌ Поисковик не инициализирован. Проверьте ошибки выше.")
-            else:
-                with st.spinner(f"🔍 Поиск статей по запросу: '{search_query}'..."):
-                    try:
-                        # Поиск во всех источниках
-                        found_articles = st.session_state.article_searcher.search_all_sources(
-                            search_query, 
-                            max_results_per_source=max_results
-                        )
-                        
-                        if not found_articles:
-                            st.warning("⚠️ Статьи не найдены. Попробуйте изменить поисковый запрос.")
-                        else:
-                            st.success(f"✅ Найдено {len(found_articles)} статей!")
-                            
-                            # Показываем найденные статьи
-                            st.markdown("### 📚 Найденные статьи:")
-                            
-                            articles_to_add = []
-                            
-                            for i, article in enumerate(found_articles, 1):
-                                with st.expander(f"📄 {i}. {article.get('title', 'Без названия')}", expanded=False):
-                                    col_info1, col_info2 = st.columns(2)
-                                    
-                                    with col_info1:
-                                        if article.get('authors'):
-                                            st.write(f"**Авторы:** {article['authors']}")
-                                        if article.get('year'):
-                                            st.write(f"**Год:** {article['year']}")
-                                        if article.get('journal'):
-                                            st.write(f"**Журнал:** {article['journal']}")
-                                    
-                                    with col_info2:
-                                        st.write(f"**Источник:** {article.get('source', 'Неизвестно')}")
-                                        if article.get('url'):
-                                            st.write(f"**Ссылка:** [Открыть]({article['url']})")
-                                        if article.get('pmid'):
-                                            st.write(f"**PMID:** {article['pmid']}")
-                                    
-                                    if article.get('abstract'):
-                                        st.markdown("**Аннотация:**")
-                                        st.write(article['abstract'][:500] + "..." if len(article.get('abstract', '')) > 500 else article['abstract'])
-                                    
-                                    if article.get('text'):
-                                        st.markdown("**Текст:**")
-                                        st.write(article['text'][:300] + "..." if len(article.get('text', '')) > 300 else article['text'])
-                                    
-                                    # Чекбокс для добавления статьи
-                                    add_article = st.checkbox(
-                                        f"Добавить статью {i}",
-                                        key=f"add_article_{i}",
-                                        value=auto_process
-                                    )
-                                    
-                                    if add_article:
-                                        articles_to_add.append(article)
-                            
-                            # Обработка выбранных статей
-                            if articles_to_add:
-                                if st.button(f"📥 Добавить и обработать {len(articles_to_add)} статей", type="primary", use_container_width=True):
-                                    with st.spinner(f"Обработка {len(articles_to_add)} статей..."):
-                                        added_count = 0
-                                        processed_count = 0
-                                        
-                                        for article in articles_to_add:
-                                            try:
-                                                # Добавление статьи в систему
-                                                article_obj = st.session_state.knowledge_extractor.add_article(
-                                                    title=article.get('title', 'Без названия'),
-                                                    authors=article.get('authors', ''),
-                                                    year=article.get('year'),
-                                                    journal=article.get('journal', ''),
-                                                    url=article.get('url', ''),
-                                                    doi=article.get('doi', ''),
-                                                    text=article.get('text', article.get('abstract', ''))
-                                                )
-                                                
-                                                # Извлечение знаний
-                                                if article_obj.text:
-                                                    knowledge = st.session_state.knowledge_extractor.process_article(article_obj)
-                                                    processed_count += 1
-                                                
-                                                # Добавление в список статей
-                                                article_data = {
-                                                    'title': article.get('title', 'Без названия'),
-                                                    'authors': article.get('authors', ''),
-                                                    'year': article.get('year'),
-                                                    'journal': article.get('journal', ''),
-                                                    'url': article.get('url', ''),
-                                                    'doi': article.get('doi', ''),
-                                                    'text': article.get('text', article.get('abstract', '')),
-                                                    'source': article.get('source', 'Internet')
-                                                }
-                                                st.session_state.articles.append(article_data)
-                                                added_count += 1
-                                                
-                                            except Exception as e:
-                                                st.warning(f"⚠️ Ошибка при обработке статьи '{article.get('title', 'Unknown')}': {e}")
-                                        
-                                        # Сохранение статей
-                                        save_articles(st.session_state.articles)
-                                        
-                                        # Обновление базы знаний
-                                        st.session_state.knowledge_base = st.session_state.knowledge_extractor.get_knowledge_base()
-                                        
-                                        st.success(f"✅ Добавлено {added_count} статей, обработано {processed_count} статей!")
-                                        st.info(f"📚 Всего статей в системе: {len(st.session_state.articles)}")
-                                        
-                                        # Показываем статистику извлеченных знаний
-                                        kb = st.session_state.knowledge_base
-                                        col_kb1, col_kb2, col_kb3, col_kb4 = st.columns(4)
-                                        col_kb1.metric("Рекомендации", len(kb.get('composite_recommendations', [])))
-                                        col_kb2.metric("ЭМГ-показатели", len(kb.get('emg_guidelines', [])))
-                                        col_kb3.metric("Критерии", len(kb.get('clinical_criteria', [])))
-                                        col_kb4.metric("Характеристики", len(kb.get('technical_specs', [])))
-                    
-                    except ImportError as e:
-                        st.error(f"❌ Ошибка: {e}")
-                        st.info("""
-                        **Установите необходимые библиотеки:**
-                        ```bash
-                        pip install requests beautifulsoup4 feedparser
-                        ```
-                        """)
-                    except Exception as e:
-                        st.error(f"❌ Ошибка при поиске статей: {e}")
-                        import traceback
-                        st.code(traceback.format_exc())
-    
-    with tab5:
         st.subheader("Загруженные статьи")
         
         # Кнопка для экспорта всех статей
