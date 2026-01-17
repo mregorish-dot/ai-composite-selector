@@ -772,7 +772,7 @@ elif page == "📥 Загрузка данных":
     """)
     
     # Вкладки для разных способов загрузки
-    tab1, tab2, tab3, tab4 = st.tabs(["📄 Загрузка текста статьи", "📑 Загрузка PDF", "🔗 Добавление ссылки", "📋 Список статей"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📄 Загрузка текста статьи", "📑 Загрузка PDF", "🔗 Добавление ссылки", "🌐 Автопоиск в интернете", "📋 Список статей"])
     
     with tab1:
         st.subheader("Загрузка текста статьи")
@@ -984,6 +984,184 @@ elif page == "📥 Загрузка данных":
                     st.error("❌ Введите URL статьи")
     
     with tab4:
+        st.subheader("🌐 Автоматический поиск статей в интернете")
+        
+        st.info("""
+        **Автоматический поиск статей из научных баз данных:**
+        - 🔬 **PubMed** — крупнейшая база медицинских публикаций
+        - 📖 **PubMed Central** — открытый доступ к полным текстам
+        - 📄 **arXiv** — препринты научных статей
+        
+        Система автоматически найдет статьи, загрузит их и извлечет знания для обучения модели.
+        """)
+        
+        # Инициализация поисковика
+        if 'article_searcher' not in st.session_state:
+            try:
+                st.session_state.article_searcher = ArticleSearcher()
+            except Exception as e:
+                st.error(f"❌ Ошибка инициализации поисковика: {e}")
+                st.info("Установите зависимости: `pip install requests beautifulsoup4 feedparser`")
+                st.stop()
+        
+        # Рекомендуемые запросы
+        st.markdown("**💡 Рекомендуемые поисковые запросы:**")
+        recommended_queries = get_recommended_queries()
+        selected_query = st.selectbox(
+            "Выберите готовый запрос или введите свой:",
+            ["Введите свой запрос..."] + recommended_queries
+        )
+        
+        # Поле для ввода собственного запроса
+        if selected_query == "Введите свой запрос...":
+            custom_query = st.text_input(
+                "Введите поисковый запрос:",
+                placeholder="Например: dental composite EMG masticatory muscles"
+            )
+            search_query = custom_query
+        else:
+            search_query = selected_query
+        
+        # Настройки поиска
+        col1, col2 = st.columns(2)
+        with col1:
+            max_results = st.number_input("Максимум результатов на источник", min_value=1, max_value=20, value=5)
+        with col2:
+            auto_process = st.checkbox("Автоматически обработать найденные статьи", value=True)
+        
+        # Кнопка поиска
+        if st.button("🔍 Найти статьи в интернете", type="primary", use_container_width=True):
+            if not search_query:
+                st.error("❌ Введите поисковый запрос")
+            else:
+                with st.spinner(f"🔍 Поиск статей по запросу: '{search_query}'..."):
+                    try:
+                        # Поиск во всех источниках
+                        found_articles = st.session_state.article_searcher.search_all_sources(
+                            search_query, 
+                            max_results_per_source=max_results
+                        )
+                        
+                        if not found_articles:
+                            st.warning("⚠️ Статьи не найдены. Попробуйте изменить поисковый запрос.")
+                        else:
+                            st.success(f"✅ Найдено {len(found_articles)} статей!")
+                            
+                            # Показываем найденные статьи
+                            st.markdown("### 📚 Найденные статьи:")
+                            
+                            articles_to_add = []
+                            
+                            for i, article in enumerate(found_articles, 1):
+                                with st.expander(f"📄 {i}. {article.get('title', 'Без названия')}", expanded=False):
+                                    col_info1, col_info2 = st.columns(2)
+                                    
+                                    with col_info1:
+                                        if article.get('authors'):
+                                            st.write(f"**Авторы:** {article['authors']}")
+                                        if article.get('year'):
+                                            st.write(f"**Год:** {article['year']}")
+                                        if article.get('journal'):
+                                            st.write(f"**Журнал:** {article['journal']}")
+                                    
+                                    with col_info2:
+                                        st.write(f"**Источник:** {article.get('source', 'Неизвестно')}")
+                                        if article.get('url'):
+                                            st.write(f"**Ссылка:** [Открыть]({article['url']})")
+                                        if article.get('pmid'):
+                                            st.write(f"**PMID:** {article['pmid']}")
+                                    
+                                    if article.get('abstract'):
+                                        st.markdown("**Аннотация:**")
+                                        st.write(article['abstract'][:500] + "..." if len(article.get('abstract', '')) > 500 else article['abstract'])
+                                    
+                                    if article.get('text'):
+                                        st.markdown("**Текст:**")
+                                        st.write(article['text'][:300] + "..." if len(article.get('text', '')) > 300 else article['text'])
+                                    
+                                    # Чекбокс для добавления статьи
+                                    add_article = st.checkbox(
+                                        f"Добавить статью {i}",
+                                        key=f"add_article_{i}",
+                                        value=auto_process
+                                    )
+                                    
+                                    if add_article:
+                                        articles_to_add.append(article)
+                            
+                            # Обработка выбранных статей
+                            if articles_to_add:
+                                if st.button(f"📥 Добавить и обработать {len(articles_to_add)} статей", type="primary", use_container_width=True):
+                                    with st.spinner(f"Обработка {len(articles_to_add)} статей..."):
+                                        added_count = 0
+                                        processed_count = 0
+                                        
+                                        for article in articles_to_add:
+                                            try:
+                                                # Добавление статьи в систему
+                                                article_obj = st.session_state.knowledge_extractor.add_article(
+                                                    title=article.get('title', 'Без названия'),
+                                                    authors=article.get('authors', ''),
+                                                    year=article.get('year'),
+                                                    journal=article.get('journal', ''),
+                                                    url=article.get('url', ''),
+                                                    doi=article.get('doi', ''),
+                                                    text=article.get('text', article.get('abstract', ''))
+                                                )
+                                                
+                                                # Извлечение знаний
+                                                if article_obj.text:
+                                                    knowledge = st.session_state.knowledge_extractor.process_article(article_obj)
+                                                    processed_count += 1
+                                                
+                                                # Добавление в список статей
+                                                article_data = {
+                                                    'title': article.get('title', 'Без названия'),
+                                                    'authors': article.get('authors', ''),
+                                                    'year': article.get('year'),
+                                                    'journal': article.get('journal', ''),
+                                                    'url': article.get('url', ''),
+                                                    'doi': article.get('doi', ''),
+                                                    'text': article.get('text', article.get('abstract', '')),
+                                                    'source': article.get('source', 'Internet')
+                                                }
+                                                st.session_state.articles.append(article_data)
+                                                added_count += 1
+                                                
+                                            except Exception as e:
+                                                st.warning(f"⚠️ Ошибка при обработке статьи '{article.get('title', 'Unknown')}': {e}")
+                                        
+                                        # Сохранение статей
+                                        save_articles(st.session_state.articles)
+                                        
+                                        # Обновление базы знаний
+                                        st.session_state.knowledge_base = st.session_state.knowledge_extractor.get_knowledge_base()
+                                        
+                                        st.success(f"✅ Добавлено {added_count} статей, обработано {processed_count} статей!")
+                                        st.info(f"📚 Всего статей в системе: {len(st.session_state.articles)}")
+                                        
+                                        # Показываем статистику извлеченных знаний
+                                        kb = st.session_state.knowledge_base
+                                        col_kb1, col_kb2, col_kb3, col_kb4 = st.columns(4)
+                                        col_kb1.metric("Рекомендации", len(kb.get('composite_recommendations', [])))
+                                        col_kb2.metric("ЭМГ-показатели", len(kb.get('emg_guidelines', [])))
+                                        col_kb3.metric("Критерии", len(kb.get('clinical_criteria', [])))
+                                        col_kb4.metric("Характеристики", len(kb.get('technical_specs', [])))
+                    
+                    except ImportError as e:
+                        st.error(f"❌ Ошибка: {e}")
+                        st.info("""
+                        **Установите необходимые библиотеки:**
+                        ```bash
+                        pip install requests beautifulsoup4 feedparser
+                        ```
+                        """)
+                    except Exception as e:
+                        st.error(f"❌ Ошибка при поиске статей: {e}")
+                        import traceback
+                        st.code(traceback.format_exc())
+    
+    with tab5:
         st.subheader("Загруженные статьи")
         
         # Кнопка для экспорта всех статей
