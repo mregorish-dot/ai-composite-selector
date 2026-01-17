@@ -1104,12 +1104,26 @@ elif page == "📥 Загрузка данных":
                     st.code(traceback.format_exc())
                 st.stop()
             except Exception as e:
-                st.error(f"❌ Ошибка инициализации поисковика: {e}")
+                error_msg = str(e)
+                error_type = type(e).__name__
+                
+                st.error(f"❌ Ошибка инициализации поисковика ({error_type}): {error_msg}")
                 st.info(f"**Текущая директория:** {app_dir_str}")
-                st.info("Установите зависимости: `python3 -m pip install requests beautifulsoup4 feedparser lxml`")
+                article_searcher_path = os.path.join(app_dir_str, 'article_searcher.py')
+                st.info(f"**Файл article_searcher.py существует:** {os.path.exists(article_searcher_path)}")
+                
+                # Проверяем, связана ли ошибка с зависимостями
+                if any(dep in error_msg.lower() for dep in ['requests', 'beautifulsoup', 'feedparser', 'lxml', 'no module', 'cannot import']):
+                    st.warning("⚠️ Проблема с зависимостями. Установите их:")
+                else:
+                    st.info("**Установите зависимости:**")
+                
+                st.code("python3 -m pip install requests beautifulsoup4 feedparser lxml", language="bash")
+                
                 import traceback
-                with st.expander("🔍 Подробности ошибки"):
+                with st.expander("🔍 Подробности ошибки (нажмите для диагностики)"):
                     st.code(traceback.format_exc())
+                    st.info("**Скопируйте этот traceback и отправьте разработчику для диагностики**")
                 st.stop()
         
         # Рекомендуемые запросы
