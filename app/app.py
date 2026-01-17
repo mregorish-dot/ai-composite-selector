@@ -998,10 +998,22 @@ elif page == "📥 Загрузка данных":
         # Инициализация поисковика
         if 'article_searcher' not in st.session_state:
             try:
+                # Импорт здесь, чтобы не блокировать запуск приложения если модуль недоступен
+                from article_searcher import ArticleSearcher, get_recommended_queries
                 st.session_state.article_searcher = ArticleSearcher()
+                st.session_state.get_recommended_queries = get_recommended_queries
+            except ImportError as e:
+                st.error(f"❌ Ошибка импорта модуля поиска: {e}")
+                st.info("""
+                **Установите зависимости:**
+                ```bash
+                pip install requests beautifulsoup4 feedparser lxml
+                ```
+                """)
+                st.stop()
             except Exception as e:
                 st.error(f"❌ Ошибка инициализации поисковика: {e}")
-                st.info("Установите зависимости: `pip install requests beautifulsoup4 feedparser`")
+                st.info("Установите зависимости: `pip install requests beautifulsoup4 feedparser lxml`")
                 st.stop()
         
         # Рекомендуемые запросы
