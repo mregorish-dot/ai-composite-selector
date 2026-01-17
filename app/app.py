@@ -999,16 +999,17 @@ elif page == "📥 Загрузка данных":
         
         # Инициализация поисковика
         if 'article_searcher' not in st.session_state:
+            import sys
+            import os
+            from pathlib import Path
+            
+            # Получаем абсолютный путь к директории app
+            app_dir = Path(__file__).parent.absolute()
+            app_dir_str = str(app_dir)
+            
             try:
                 # Импорт здесь, чтобы не блокировать запуск приложения если модуль недоступен
                 # Добавляем текущую директорию в путь для импорта
-                import sys
-                import os
-                from pathlib import Path
-                
-                # Получаем абсолютный путь к директории app
-                app_dir = Path(__file__).parent.absolute()
-                app_dir_str = str(app_dir)
                 
                 # Добавляем в sys.path если еще нет
                 if app_dir_str not in sys.path:
@@ -1028,7 +1029,38 @@ elif page == "📥 Загрузка данных":
             except ImportError as e:
                 st.error(f"❌ Ошибка импорта модуля поиска: {e}")
                 st.info(f"**Текущая директория:** {app_dir_str}")
-                st.info(f"**Файл article_searcher.py существует:** {os.path.exists(os.path.join(app_dir_str, 'article_searcher.py'))}")
+                article_searcher_path = os.path.join(app_dir_str, 'article_searcher.py')
+                st.info(f"**Файл article_searcher.py существует:** {os.path.exists(article_searcher_path)}")
+                if os.path.exists(article_searcher_path):
+                    st.info(f"**Путь к файлу:** {article_searcher_path}")
+                st.info("""
+                **Установите зависимости:**
+                ```bash
+                python3 -m pip install requests beautifulsoup4 feedparser lxml
+                ```
+                """)
+                import traceback
+                with st.expander("🔍 Подробности ошибки"):
+                    st.code(traceback.format_exc())
+                st.stop()
+            except NameError as e:
+                # Обработка случая, когда ArticleSearcher не определен
+                st.error(f"❌ Класс ArticleSearcher не найден: {e}")
+                st.info(f"**Текущая директория:** {app_dir_str}")
+                article_searcher_path = os.path.join(app_dir_str, 'article_searcher.py')
+                st.info(f"**Файл article_searcher.py существует:** {os.path.exists(article_searcher_path)}")
+                if os.path.exists(article_searcher_path):
+                    st.info(f"**Путь к файлу:** {article_searcher_path}")
+                    # Попробуем проверить содержимое файла
+                    try:
+                        with open(article_searcher_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                            if 'class ArticleSearcher' in content:
+                                st.warning("⚠️ Класс ArticleSearcher найден в файле, но импорт не работает. Возможно, проблема с зависимостями.")
+                            else:
+                                st.error("❌ Класс ArticleSearcher не найден в файле article_searcher.py")
+                    except Exception as read_error:
+                        st.warning(f"Не удалось прочитать файл: {read_error}")
                 st.info("""
                 **Установите зависимости:**
                 ```bash
@@ -1041,6 +1073,7 @@ elif page == "📥 Загрузка данных":
                 st.stop()
             except Exception as e:
                 st.error(f"❌ Ошибка инициализации поисковика: {e}")
+                st.info(f"**Текущая директория:** {app_dir_str}")
                 st.info("Установите зависимости: `python3 -m pip install requests beautifulsoup4 feedparser lxml`")
                 import traceback
                 with st.expander("🔍 Подробности ошибки"):
