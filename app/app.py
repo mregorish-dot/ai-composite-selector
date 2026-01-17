@@ -1020,17 +1020,30 @@ elif page == "📥 Загрузка данных":
                     del sys.modules['article_searcher']
                 
                 # Сначала импортируем модуль целиком для проверки
-                import article_searcher
+                # Используем importlib для более надежного импорта
+                import importlib.util
+                article_searcher_path = os.path.join(app_dir_str, 'article_searcher.py')
+                
+                if not os.path.exists(article_searcher_path):
+                    raise FileNotFoundError(f"Файл article_searcher.py не найден: {article_searcher_path}")
+                
+                spec = importlib.util.spec_from_file_location("article_searcher", article_searcher_path)
+                if spec is None or spec.loader is None:
+                    raise ImportError(f"Не удалось создать spec для модуля article_searcher")
+                
+                article_searcher_module = importlib.util.module_from_spec(spec)
+                sys.modules['article_searcher'] = article_searcher_module
+                spec.loader.exec_module(article_searcher_module)
                 
                 # Проверяем, что класс существует в модуле
-                if not hasattr(article_searcher, 'ArticleSearcher'):
+                if not hasattr(article_searcher_module, 'ArticleSearcher'):
                     raise AttributeError("Класс ArticleSearcher не найден в модуле article_searcher")
-                if not hasattr(article_searcher, 'get_recommended_queries'):
+                if not hasattr(article_searcher_module, 'get_recommended_queries'):
                     raise AttributeError("Функция get_recommended_queries не найдена в модуле article_searcher")
                 
                 # Теперь импортируем нужные классы/функции
-                ArticleSearcher = article_searcher.ArticleSearcher
-                get_recommended_queries = article_searcher.get_recommended_queries
+                ArticleSearcher = article_searcher_module.ArticleSearcher
+                get_recommended_queries = article_searcher_module.get_recommended_queries
                 
                 # Создаем экземпляр и сохраняем в session_state
                 st.session_state.article_searcher = ArticleSearcher()
