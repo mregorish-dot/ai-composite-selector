@@ -999,6 +999,13 @@ elif page == "📥 Загрузка данных":
         if 'article_searcher' not in st.session_state:
             try:
                 # Импорт здесь, чтобы не блокировать запуск приложения если модуль недоступен
+                # Добавляем текущую директорию в путь для импорта
+                import sys
+                import os
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                if current_dir not in sys.path:
+                    sys.path.insert(0, current_dir)
+                
                 from article_searcher import ArticleSearcher, get_recommended_queries
                 st.session_state.article_searcher = ArticleSearcher()
                 st.session_state.get_recommended_queries = get_recommended_queries
@@ -1007,13 +1014,17 @@ elif page == "📥 Загрузка данных":
                 st.info("""
                 **Установите зависимости:**
                 ```bash
-                pip install requests beautifulsoup4 feedparser lxml
+                python3 -m pip install requests beautifulsoup4 feedparser lxml
                 ```
                 """)
+                import traceback
+                st.code(traceback.format_exc())
                 st.stop()
             except Exception as e:
                 st.error(f"❌ Ошибка инициализации поисковика: {e}")
-                st.info("Установите зависимости: `pip install requests beautifulsoup4 feedparser lxml`")
+                st.info("Установите зависимости: `python3 -m pip install requests beautifulsoup4 feedparser lxml`")
+                import traceback
+                st.code(traceback.format_exc())
                 st.stop()
         
         # Рекомендуемые запросы
