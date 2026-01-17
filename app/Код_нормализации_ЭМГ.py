@@ -11,7 +11,7 @@ from enum import Enum
 
 class EMGApparatus(Enum):
     """Типы ЭМГ-аппаратов"""
-    BJOEMG2 = "Аппарат диагностической системы BjoEMG II (BioPAK Inc., США)"
+    BJOEMG2 = "BjoEMG II"
     SYNAPSYS = "Synapsys"
     KOLIBRI = "Kolibri"
     OTHER = "Other"
