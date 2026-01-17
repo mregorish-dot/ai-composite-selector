@@ -28,6 +28,8 @@ if 'composite_selector' in sys.modules:
     del sys.modules['composite_selector']
 if 'Код_нормализации_ЭМГ' in sys.modules:
     del sys.modules['Код_нормализации_ЭМГ']
+if 'article_searcher' in sys.modules:
+    del sys.modules['article_searcher']
 
 # Импорт модулей
 try:
