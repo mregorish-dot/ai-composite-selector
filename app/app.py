@@ -1019,8 +1019,18 @@ elif page == "📥 Загрузка данных":
                 if 'article_searcher' in sys.modules:
                     del sys.modules['article_searcher']
                 
-                # Импортируем модуль
-                from article_searcher import ArticleSearcher, get_recommended_queries
+                # Сначала импортируем модуль целиком для проверки
+                import article_searcher
+                
+                # Проверяем, что класс существует в модуле
+                if not hasattr(article_searcher, 'ArticleSearcher'):
+                    raise AttributeError("Класс ArticleSearcher не найден в модуле article_searcher")
+                if not hasattr(article_searcher, 'get_recommended_queries'):
+                    raise AttributeError("Функция get_recommended_queries не найдена в модуле article_searcher")
+                
+                # Теперь импортируем нужные классы/функции
+                ArticleSearcher = article_searcher.ArticleSearcher
+                get_recommended_queries = article_searcher.get_recommended_queries
                 
                 # Создаем экземпляр и сохраняем в session_state
                 st.session_state.article_searcher = ArticleSearcher()
@@ -1043,7 +1053,7 @@ elif page == "📥 Загрузка данных":
                 with st.expander("🔍 Подробности ошибки"):
                     st.code(traceback.format_exc())
                 st.stop()
-            except NameError as e:
+            except (NameError, AttributeError) as e:
                 # Обработка случая, когда ArticleSearcher не определен
                 st.error(f"❌ Класс ArticleSearcher не найден: {e}")
                 st.info(f"**Текущая директория:** {app_dir_str}")
