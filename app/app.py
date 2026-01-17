@@ -1004,15 +1004,31 @@ elif page == "📥 Загрузка данных":
                 # Добавляем текущую директорию в путь для импорта
                 import sys
                 import os
-                current_dir = os.path.dirname(os.path.abspath(__file__))
-                if current_dir not in sys.path:
-                    sys.path.insert(0, current_dir)
+                from pathlib import Path
                 
+                # Получаем абсолютный путь к директории app
+                app_dir = Path(__file__).parent.absolute()
+                app_dir_str = str(app_dir)
+                
+                # Добавляем в sys.path если еще нет
+                if app_dir_str not in sys.path:
+                    sys.path.insert(0, app_dir_str)
+                
+                # Очищаем кэш модуля если был загружен ранее
+                if 'article_searcher' in sys.modules:
+                    del sys.modules['article_searcher']
+                
+                # Импортируем модуль
                 from article_searcher import ArticleSearcher, get_recommended_queries
+                
+                # Создаем экземпляр и сохраняем в session_state
                 st.session_state.article_searcher = ArticleSearcher()
                 st.session_state.get_recommended_queries = get_recommended_queries
+                
             except ImportError as e:
                 st.error(f"❌ Ошибка импорта модуля поиска: {e}")
+                st.info(f"**Текущая директория:** {app_dir_str}")
+                st.info(f"**Файл article_searcher.py существует:** {os.path.exists(os.path.join(app_dir_str, 'article_searcher.py'))}")
                 st.info("""
                 **Установите зависимости:**
                 ```bash
@@ -1020,13 +1036,15 @@ elif page == "📥 Загрузка данных":
                 ```
                 """)
                 import traceback
-                st.code(traceback.format_exc())
+                with st.expander("🔍 Подробности ошибки"):
+                    st.code(traceback.format_exc())
                 st.stop()
             except Exception as e:
                 st.error(f"❌ Ошибка инициализации поисковика: {e}")
                 st.info("Установите зависимости: `python3 -m pip install requests beautifulsoup4 feedparser lxml`")
                 import traceback
-                st.code(traceback.format_exc())
+                with st.expander("🔍 Подробности ошибки"):
+                    st.code(traceback.format_exc())
                 st.stop()
         
         # Рекомендуемые запросы
