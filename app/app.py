@@ -1162,6 +1162,8 @@ elif page == "📥 Загрузка данных":
         if st.button("🔍 Найти статьи в интернете", type="primary", use_container_width=True):
             if not search_query:
                 st.error("❌ Введите поисковый запрос")
+            elif 'article_searcher' not in st.session_state:
+                st.error("❌ Поисковик не инициализирован. Проверьте ошибки выше.")
             else:
                 with st.spinner(f"🔍 Поиск статей по запросу: '{search_query}'..."):
                     try:
