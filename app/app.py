@@ -1072,7 +1072,7 @@ elif page == "📥 Загрузка данных":
                 ```
                 """)
                 import traceback
-                with st.expander("🔍 Подробности ошибки"):
+                with st.expander("🔍 Подробности ошибки", expanded=True):
                     st.code(traceback.format_exc())
                 st.stop()
             except (NameError, AttributeError) as e:
@@ -1100,7 +1100,7 @@ elif page == "📥 Загрузка данных":
                 ```
                 """)
                 import traceback
-                with st.expander("🔍 Подробности ошибки"):
+                with st.expander("🔍 Подробности ошибки", expanded=True):
                     st.code(traceback.format_exc())
                 st.stop()
             except Exception as e:
@@ -1121,7 +1121,8 @@ elif page == "📥 Загрузка данных":
                 st.code("python3 -m pip install requests beautifulsoup4 feedparser lxml", language="bash")
                 
                 import traceback
-                with st.expander("🔍 Подробности ошибки (нажмите для диагностики)"):
+                # Expander открыт по умолчанию для удобства диагностики
+                with st.expander("🔍 Подробности ошибки (нажмите для диагностики)", expanded=True):
                     st.code(traceback.format_exc())
                     st.info("**Скопируйте этот traceback и отправьте разработчику для диагностики**")
                 st.stop()
