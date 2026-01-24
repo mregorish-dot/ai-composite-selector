@@ -44,7 +44,9 @@ class PatientData:
     # Дополнительные данные
     age: Optional[int] = None
     occlusion_anomaly_type: Optional[str] = None
-    wear_severity: Optional[str] = None  # none, mild, moderate, severe, bushan_I-IV, twes_0-4
+    defect_volume: Optional[str] = None  # до 1/3, до 1/2, более 1/2
+    localization: Optional[str] = None  # окклюзионная поверхность, апроксимальная(-ые) поверхность(-ти), окклюзионной+ апроксимальная(-ые)
+    wear_severity: Optional[str] = None  # для обратной совместимости (deprecated)
     mvc_hyperfunction_percent: Optional[float] = None
     mvc_duration_sec_per_min: Optional[float] = None
     # Дополнительные фильтры

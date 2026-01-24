@@ -300,7 +300,7 @@ elif page == "📊 Выбор композита":
         Введите ЭМГ-данные пациента в покое. Система автоматически:
         - Проверит патологию при показателях ≥ 1.5 мкВ у всех 4 мышц
         - Вычислит MVC гиперфункцию (%) и MVC длительность из анализа
-        - Выберет оптимальные композиты с обоснованием на основе объёма дефекта и локализации
+        - Выберет оптимальные композиты с обоснованием на основе клинической классификации стираемости (Бушан М.Г. или TWES 2.0)
         """)
     
     # Дополнительные фильтры (перед формой)
@@ -340,30 +340,92 @@ elif page == "📊 Выбор композита":
                 help="Максимальная цена на российском рынке"
             )
     
-    # Новые поля: Локализация и Объём дефекта
-    st.subheader("Клинические данные")
+    # Выбор классификации ВЫНЕСЕН ИЗ ФОРМЫ для мгновенной синхронизации
+    st.subheader("Классификация стираемости")
     
-    col_loc, col_vol = st.columns(2)
+    # Отслеживание изменения классификации для автоматической синхронизации
+    if 'previous_wear_severity_type' not in st.session_state:
+        st.session_state.previous_wear_severity_type = None
     
-    with col_loc:
-        localization = st.selectbox(
-            "📍 Локализация",
-            ["Не указана", "окклюзионная поверхность", "апроксимальная(-ые) поверхность(-ти)", "окклюзионной+ апроксимальная(-ые)"],
-            help="Локализация дефекта твёрдых тканей жевательных зубов",
-            key="localization_select"
+    col_class1, col_class2 = st.columns(2)
+    
+    with col_class1:
+        wear_severity_type = st.radio(
+            "Тип классификации стираемости",
+            ["TWES 2.0 (современная)", "По Бушану М.Г. (классическая)"],
+            help="TWES 2.0 - современная классификация (2020), Бушан - классическая клиническая (на основании клинического обследования)",
+            key="wear_severity_type_radio"
         )
-        if localization == "Не указана":
-            localization = None
+        
+        # Сброс выбранной степени при изменении классификации
+        if st.session_state.previous_wear_severity_type is not None and st.session_state.previous_wear_severity_type != wear_severity_type:
+            # Классификация изменилась - сбрасываем степень
+            if 'wear_severity_twes' in st.session_state:
+                st.session_state.wear_severity_twes = "Не указана"
+            if 'wear_severity_bushan' in st.session_state:
+                st.session_state.wear_severity_bushan = "Не указана"
+        
+        st.session_state.previous_wear_severity_type = wear_severity_type
     
-    with col_vol:
-        defect_volume = st.selectbox(
-            "📏 Объём дефекта твёрдых тканей",
-            ["Не указан", "до 1/3", "до 1/2", "более 1/2"],
-            help="Объём дефекта твёрдых тканей жевательных зубов",
-            key="defect_volume_select"
-        )
-        if defect_volume == "Не указан":
-            defect_volume = None
+    with col_class2:
+        if wear_severity_type == "TWES 2.0 (современная)":
+            col_wear1, col_wear2 = st.columns([2, 1])
+            with col_wear1:
+                wear_severity = st.selectbox(
+                    "Степень стираемости (TWES 2.0)",
+                    ["Не указана", "Grade 0", "Grade 1", "Grade 2", "Grade 3", "Grade 4"],
+                    help="Grade 0-4 по TWES 2.0",
+                    key="wear_severity_twes"
+                )
+            with col_wear2:
+                if wear_severity != "Не указана":
+                    twes_descriptions = {
+                        "Grade 0": "0 - Не наблюдается стираемость",
+                        "Grade 1": "1 - Лёгкая степень до 1/3 коронки",
+                        "Grade 2": "2 - Лёгкая степень до 1/3 коронки",
+                        "Grade 3": "3 - Средняя степень от 1/3 до 2/3 коронки",
+                        "Grade 4": "4 - Тяжёлая степень более 2/3 коронки"
+                    }
+                    st.markdown(f"**{twes_descriptions.get(wear_severity, '')}**")
+            
+            # Конвертация для системы
+            twes_map = {
+                "Не указана": None,
+                "Grade 0": "twes_0",
+                "Grade 1": "twes_1",
+                "Grade 2": "twes_2",
+                "Grade 3": "twes_3",
+                "Grade 4": "twes_4"
+            }
+            wear_severity = twes_map[wear_severity]
+        else:  # По Бушану М.Г.
+            col_wear1, col_wear2 = st.columns([2, 1])
+            with col_wear1:
+                wear_severity = st.selectbox(
+                    "Степень патологической стираемости по Бушану",
+                    ["Не указана", "I степень", "II степень", "III степень", "IV степень"],
+                    help="Определяется на основании клинического обследования (не по ЭМГ)",
+                    key="wear_severity_bushan"
+                )
+            with col_wear2:
+                if wear_severity != "Не указана":
+                    bush_descriptions = {
+                        "I степень": "1 - Не наблюдается стираемость (в пределах эмали)",
+                        "II степень": "2 - Лёгкая степень до 1/3 коронки",
+                        "III степень": "3 - Средняя степень от 1/3 до 2/3 коронки",
+                        "IV степень": "4 - Тяжёлая степень более 2/3 коронки"
+                    }
+                    st.markdown(f"**{bush_descriptions.get(wear_severity, '')}**")
+            
+            # Конвертация для системы
+            bush_map = {
+                "Не указана": None,
+                "I степень": "bushan_I",
+                "II степень": "bushan_II", 
+                "III степень": "bushan_III",
+                "IV степень": "bushan_IV"
+            }
+            wear_severity = bush_map[wear_severity]
     
     st.markdown("---")
     
@@ -464,28 +526,29 @@ elif page == "📊 Выбор композита":
             )
         
         with col4:
-            # Клинические данные уже выбраны выше, здесь только показываем информацию
-            if defect_volume or localization:
-                info_parts = []
-                if defect_volume:
-                    info_parts.append(f"**📏 Объём дефекта:** {defect_volume}")
-                if localization:
-                    info_parts.append(f"**📍 Локализация:** {localization}")
-                if info_parts:
-                    st.info(" | ".join(info_parts))
+            # Классификация уже выбрана выше, здесь только показываем информацию
+            st.info(f"**Выбрана классификация:** {wear_severity_type}")
+            if wear_severity and wear_severity is not None:
+                if wear_severity.startswith('twes_'):
+                    grade = wear_severity.replace('twes_', '')
+                    st.info(f"**Степень (TWES 2.0):** Grade {grade}")
+                elif wear_severity.startswith('bushan_'):
+                    degree = wear_severity.replace('bushan_', '')
+                    st.info(f"**Степень (Бушан М.Г.):** {degree} степень")
         
         submitted = st.form_submit_button("🔍 Найти оптимальный композит", use_container_width=True)
     
     # Обработка формы
     if submitted:
         # Подготовка данных
+        # wear_severity уже обработан выше (может быть bushan_I, bushan_II и т.д. или none, mild и т.д.)
+        wear_sev = wear_severity
+        
         # Подготовка фильтров
         region_filt = None if "Все" in filter_region else filter_region
         manufacturer_filt = None if "Все" in filter_manufacturer else filter_manufacturer
         
         patient = PatientData(
-            defect_volume=defect_volume,
-            localization=localization,
             apparatus=apparatus,
             masseter_right_chewing=masseter_r_rest,  # Правка 2: в покое, не при жевании
             masseter_left_chewing=masseter_l_rest,
@@ -497,6 +560,7 @@ elif page == "📊 Выбор композита":
             temporalis_left_max_clench=temporalis_l_max,
             age=age if age else None,
             occlusion_anomaly_type=occlusion_anomaly if occlusion_anomaly else None,
+            wear_severity=wear_sev,
             mvc_hyperfunction_percent=None,  # Правка 6: вычисляется и выводится из анализа
             mvc_duration_sec_per_min=None,   # Правка 6: вычисляется и выводится из анализа
             region_filter=region_filt,
@@ -539,13 +603,49 @@ elif page == "📊 Выбор композита":
                         - Альтернативных вариантов (наполнитель >50%): {alternative_count}
                         """)
                     
-                    # Информация о клинических данных
-                    if defect_volume or localization:
-                        with st.expander("📋 Введённые клинические данные", expanded=False):
-                            if defect_volume:
-                                st.markdown(f"**📏 Объём дефекта твёрдых тканей:** {defect_volume}")
-                            if localization:
-                                st.markdown(f"**📍 Локализация:** {localization}")
+                    # Информация о классификации
+                    if wear_sev:
+                        if wear_sev.startswith('twes_'):
+                            grade = wear_sev.replace('twes_', '')
+                            twes_data = st.session_state.composite_selector.db.twes2_classification
+                            if twes_data and 'grades' in twes_data and grade in twes_data['grades']:
+                                twes_info = twes_data['grades'][grade]
+                                with st.expander("📚 Информация о классификации TWES 2.0", expanded=False):
+                                    st.markdown(f"""
+                                    **{twes_info['name']} - {twes_info['description']}**
+                                    
+                                    - **Глубина:** {twes_info['depth']}
+                                    - **Ткани:** {twes_info['tissues']}
+                                    - **Характеристика:** {twes_info['characteristics']}
+                                    - **Клиническое значение:** {twes_info['clinical_significance']}
+                                    
+                                    **Рекомендации для композита:**
+                                    - Микротвердость: ≥{twes_info['recommended_microhardness_min']} KHN
+                                    - Износостойкость: {twes_info['recommended_wear_resistance']}
+                                    - Наполнитель: ≥{twes_info['recommended_filler_min']}%
+                                    
+                                    *Источник: Wetselaar et al. 2020, Journal of Oral Rehabilitation*
+                                    *[Ссылка на статью]({twes_data.get('url', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7384115/')})*
+                                    """)
+                        elif wear_sev.startswith('bushan_'):
+                            degree = wear_sev.replace('bushan_', '')
+                            bush_data = st.session_state.composite_selector.db.bushan_classification
+                            if bush_data and 'degrees' in bush_data and degree in bush_data['degrees']:
+                                bush_info = bush_data['degrees'][degree]
+                                with st.expander("📚 Информация о классификации по Бушану", expanded=False):
+                                    st.markdown(f"""
+                                    **{bush_info['name']} патологической стираемости:**
+                                    
+                                    - **Глубина:** {bush_info['depth']}
+                                    - **Ткани:** {bush_info['tissues']}
+                                    - **Характеристика:** {bush_info['characteristics']}
+                                    - **Клиническое значение:** {bush_info['clinical_significance']}
+                                    
+                                    **Рекомендации для композита:**
+                                    - Микротвердость: ≥{bush_info['recommended_microhardness_min']} KHN
+                                    - Износостойкость: {bush_info['recommended_wear_resistance']}
+                                    - Наполнитель: ≥{bush_info['recommended_filler_min']}%
+                                    """)
         
         if results:
             st.success(f"✅ Найдено {len(results)} рекомендуемых композита(ов)")
