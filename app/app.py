@@ -16,12 +16,13 @@ current_dir = Path(__file__).parent.absolute()
 parent_dir = str(current_dir.parent)
 current_dir_str = str(current_dir)
 
-# ВАЖНО: Сначала добавляем текущую директорию (app/), чтобы использовать локальные версии модулей
-# Затем добавляем родительскую директорию как резерв
-for path in [current_dir_str, parent_dir]:
+# ВАЖНО:
+# В репозитории есть `composite_selector.py` и в корне, и в `app/`.
+# Нам нужна версия из `app/`, поэтому `app/` должен иметь БОЛЕЕ ВЫСОКИЙ приоритет в sys.path.
+for path in [parent_dir, current_dir_str]:
     if path in sys.path:
         sys.path.remove(path)  # Удаляем если уже есть
-    sys.path.insert(0, path)  # Вставляем в начало
+    sys.path.insert(0, path)
 
 # Очистка кэша модулей для принудительной перезагрузки (важно для Streamlit)
 if 'composite_selector' in sys.modules:
