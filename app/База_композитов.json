@@ -1531,7 +1531,7 @@
       "price_rub": 3000
     },
     {
-      "name": "Estelite Sigma Quick OPA",
+      "name": "Estelite Sigma Quick",
       "viscosity": "high",
       "polymerization_shrinkage_percent": 2.2,
       "microhardness_KHN": 72.5,
@@ -1544,12 +1544,12 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Estelite Sigma Quick OPA (Opaque) - розовая упаковка, оптимальный наполнитель 45%",
+      "notes": "Estelite Sigma Quick - розовая упаковка, оптимальный наполнитель 45%",
       "year_released": 2014,
       "price_rub": 3200
     },
     {
-      "name": "Estelite Sigma Quick O",
+      "name": "Estelite Sigma Quick",
       "viscosity": "high",
       "polymerization_shrinkage_percent": 2.3,
       "microhardness_KHN": 71.2,
@@ -1562,12 +1562,12 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Estelite Sigma Quick O (Opaque) - розовая упаковка, оптимальный наполнитель 42%",
+      "notes": "Estelite Sigma Quick - розовая упаковка, оптимальный наполнитель 42%",
       "year_released": 2014,
       "price_rub": 3150
     },
     {
-      "name": "Estelite Sigma Quick OA3",
+      "name": "Estelite Sigma Quick",
       "viscosity": "high",
       "polymerization_shrinkage_percent": 2.25,
       "microhardness_KHN": 72.0,
@@ -1580,12 +1580,12 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Estelite Sigma Quick OA3 (Opaque A3) - розовая упаковка, оптимальный наполнитель 44%",
+      "notes": "Estelite Sigma Quick - розовая упаковка, оптимальный наполнитель 44%",
       "year_released": 2014,
       "price_rub": 3250
     },
     {
-      "name": "Estelite Sigma Quick A2",
+      "name": "Estelite Sigma Quick",
       "viscosity": "high",
       "polymerization_shrinkage_percent": 2.3,
       "microhardness_KHN": 71.8,
@@ -1598,7 +1598,7 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Estelite Sigma Quick A2 - розовая упаковка, оптимальный наполнитель 43%",
+      "notes": "Estelite Sigma Quick - розовая упаковка, оптимальный наполнитель 43%",
       "year_released": 2014,
       "price_rub": 3100
     },
@@ -1621,7 +1621,7 @@
       "price_rub": 3400
     },
     {
-      "name": "Estelite Color Ochre",
+      "name": "Estelite Color",
       "viscosity": "high",
       "polymerization_shrinkage_percent": 2.4,
       "microhardness_KHN": 70.5,
@@ -1634,12 +1634,12 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Estelite Color Ochre (желтый) - оптимальный наполнитель 46%",
+      "notes": "Estelite Color - оптимальный наполнитель 46%",
       "year_released": 2015,
       "price_rub": 3300
     },
     {
-      "name": "Estelite Color Clear",
+      "name": "Estelite Color",
       "viscosity": "high",
       "polymerization_shrinkage_percent": 2.35,
       "microhardness_KHN": 71.0,
@@ -1652,7 +1652,7 @@
       "category": "nanocomposite",
       "region": "Asia",
       "manufacturer": "Tokuyama Dental",
-      "notes": "Estelite Color Clear (синий/прозрачный) - оптимальный наполнитель 47%",
+      "notes": "Estelite Color - оптимальный наполнитель 47%",
       "year_released": 2015,
       "price_rub": 3350
     },
