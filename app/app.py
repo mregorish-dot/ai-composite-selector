@@ -516,7 +516,7 @@ elif page == "📊 Выбор композита":
         with st.spinner("Анализ данных и выбор композита с учетом научных статей..."):
             results = st.session_state.composite_selector.select_composite(
                 patient, 
-                top_n=5,
+                top_n=10,
                 include_alternatives=True  # Включаем альтернативные варианты
             )
             
