@@ -304,6 +304,12 @@ elif page == "📊 Выбор композита":
         """)
     
     # Дополнительные фильтры (перед формой)
+    # Инициализация переменных фильтров по умолчанию
+    filter_region = ["Все"]
+    filter_manufacturer = ["Все"]
+    filter_year_min = 2000
+    filter_price_max = 50000
+    
     with st.expander("🔧 Дополнительные фильтры", expanded=False):
         filter_col1, filter_col2, filter_col3, filter_col4 = st.columns(4)
         
@@ -502,7 +508,7 @@ elif page == "📊 Выбор композита":
             region_filter=region_filt,
             manufacturer_filter=manufacturer_filt,
             year_min=filter_year_min if filter_year_min > 1990 else None,
-            price_max=filter_price_max if filter_price_max < 50000 else None
+            price_max=filter_price_max if (filter_price_max and filter_price_max < 50000) else None
         )
         
         # Поиск композитов с применением правил из статей
